@@ -117,7 +117,7 @@ describe('updateQuery on a query with required and optional variables', () => {
 
     return new Promise(resolve => setTimeout(resolve, 5))
       .then(() => obsHandle)
-      .then((watchedQuery: ObservableQuery<any>) => {
+      .then((watchedQuery: ObservableQuery<any, any>) => {
         expect(latestResult.data.entry.value).toBe(1);
         watchedQuery.updateQuery((prevResult: any) => {
           const res = cloneDeep(prevResult);
