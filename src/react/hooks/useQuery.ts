@@ -498,7 +498,7 @@ class InternalState<TData, TVariables> {
     QueryResult<TData, TVariables>
   >();
 
-  private toQueryResult(
+  public toQueryResult(
     result: ApolloQueryResult<TData>,
   ): QueryResult<TData, TVariables> {
     let queryResult = this.toQueryResultCache.get(result);
