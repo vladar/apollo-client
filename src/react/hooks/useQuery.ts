@@ -101,6 +101,9 @@ class InternalState<TData, TVariables> {
     const obsQuery = this.useObservableQuery();
     this.useSubscriptionEffect(obsQuery);
 
+    // TODO This may return an old result when we really should start a full
+    // reobservation (possibly including a network request). Need to determine
+    // based on options when a new request is being made.
     const result = this.getCurrentResult();
 
     // TODO Remove this method when we remove support for options.partialRefetch.
@@ -351,6 +354,8 @@ class InternalState<TData, TVariables> {
       }
 
       const onNext = () => {
+        // TODO Something may be wrong with this way of managing previous
+        // results...
         const previousResult = this.result;
         // We use `getCurrentResult()` instead of the onNext argument because
         // the values differ slightly. Specifically, loading results will have
@@ -366,6 +371,7 @@ class InternalState<TData, TVariables> {
           return;
         }
 
+        // TODO ... causing this setResult to happen unnecessarily.
         this.setResult(result);
       };
 
