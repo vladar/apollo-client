@@ -188,6 +188,8 @@ class InternalState<TData, TVariables> {
 
       Object.keys(defaults).forEach(
         (defaultOptionName: keyof WatchQueryOptions<TVariables, TData>) => {
+          // TODO Should we be examining/using
+          // this.observable.options[defaultOptionName] instead?
           const currentOptionValue = this.watchQueryOptions[defaultOptionName];
           if (
             hasOwnProperty.call(this.watchQueryOptions, defaultOptionName) &&
