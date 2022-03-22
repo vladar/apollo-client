@@ -714,6 +714,13 @@ once, rather than every time you call fetchMore.`);
     newOptions?: Partial<WatchQueryOptions<TVariables, TData>>,
     newNetworkStatus?: NetworkStatus,
   ): Promise<ApolloQueryResult<TData>> {
+    return this.reobserveLazy(newOptions, newNetworkStatus)();
+  }
+
+  public reobserveLazy(
+    newOptions?: Partial<WatchQueryOptions<TVariables, TData>>,
+    newNetworkStatus?: NetworkStatus,
+  ): () => Promise<ApolloQueryResult<TData>> {
     this.isTornDown = false;
 
     const useDisposableConcast =
@@ -758,33 +765,40 @@ once, rather than every time you call fetchMore.`);
     }
 
     const variables = options.variables && { ...options.variables };
-    const concast = this.fetch(options, newNetworkStatus);
-    const observer: Observer<ApolloQueryResult<TData>> = {
-      next: result => {
-        this.reportResult(result, variables);
-      },
-      error: error => {
-        this.reportError(error, variables);
-      },
-    };
 
-    if (!useDisposableConcast) {
-      // We use the {add,remove}Observer methods directly to avoid wrapping
-      // observer with an unnecessary SubscriptionObserver object, in part so
-      // that we can remove it here without triggering any unsubscriptions,
-      // because we just want to ignore the old observable, not prematurely shut
-      // it down, since other consumers may be awaiting this.concast.promise.
-      if (this.concast && this.observer) {
-        this.concast.removeObserver(this.observer, true);
+    let concast: undefined | Concast<ApolloQueryResult<TData>>;
+    return () => {
+      if (!concast) {
+        concast = this.fetch(options, newNetworkStatus);
+
+        const observer: Observer<ApolloQueryResult<TData>> = {
+          next: result => {
+            this.reportResult(result, variables);
+          },
+          error: error => {
+            this.reportError(error, variables);
+          },
+        };
+
+        if (!useDisposableConcast) {
+          // We use the {add,remove}Observer methods directly to avoid wrapping
+          // observer with an unnecessary SubscriptionObserver object, in part so
+          // that we can remove it here without triggering any unsubscriptions,
+          // because we just want to ignore the old observable, not prematurely shut
+          // it down, since other consumers may be awaiting this.concast.promise.
+          if (this.concast && this.observer) {
+            this.concast.removeObserver(this.observer, true);
+          }
+
+          this.concast = concast;
+          this.observer = observer;
+        }
+
+        concast.addObserver(observer);
       }
 
-      this.concast = concast;
-      this.observer = observer;
-    }
-
-    concast.addObserver(observer);
-
-    return concast.promise;
+      return concast.promise;
+    };
   }
 
   // Pass the current result to this.observer.next without applying any
