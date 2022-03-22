@@ -730,6 +730,7 @@ once, rather than every time you call fetchMore.`);
 
     // Save the old variables, since Object.assign may modify them below.
     const oldVariables = this.options.variables;
+    const oldFetchPolicy = this.options.fetchPolicy;
 
     const options = useDisposableConcast
       // Disposable Concast fetches receive a shallow copy of this.options
@@ -746,8 +747,8 @@ once, rather than every time you call fetchMore.`);
       if (
         newOptions &&
         newOptions.variables &&
-        !newOptions.fetchPolicy &&
-        !equal(newOptions.variables, oldVariables)
+        !equal(newOptions.variables, oldVariables) &&
+        (!newOptions.fetchPolicy || newOptions.fetchPolicy === oldFetchPolicy)
       ) {
         this.applyNextFetchPolicy("variables-changed", options);
         if (newNetworkStatus === void 0) {
