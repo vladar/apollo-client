@@ -144,6 +144,8 @@ class InternalState<TData, TVariables> {
         // call to useQuery), we are not initiating any new subscriptions, and
         // we use reobserveLazy to avoid kicking off a network request.
         finish = this.observable.reobserveLazy(watchQueryOptions);
+        // TODO Can we get rid of this?
+        finish().catch(() => {});
       }
     }
     useEffect(() => {
