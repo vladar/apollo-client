@@ -591,7 +591,7 @@ once, rather than every time you call fetchMore.`);
     // options.fetchPolicy even if options !== this.options, though that happens
     // most often when the options are temporary, used for only one request and
     // then thrown away, so nextFetchPolicy may not end up mattering.
-    options: WatchQueryOptions<TVariables, TData> = this.options,
+    options: WatchQueryOptions<TVariables, TData>,
   ) {
     if (options.nextFetchPolicy) {
       const { fetchPolicy = "cache-first" } = options;
@@ -749,7 +749,7 @@ once, rather than every time you call fetchMore.`);
         !newOptions.fetchPolicy &&
         !equal(newOptions.variables, oldVariables)
       ) {
-        this.applyNextFetchPolicy("variables-changed");
+        this.applyNextFetchPolicy("variables-changed", options);
         if (newNetworkStatus === void 0) {
           newNetworkStatus = NetworkStatus.setVariables;
         }
