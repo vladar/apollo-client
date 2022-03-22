@@ -133,7 +133,7 @@ class InternalState<TData, TVariables> {
     // this.watchQueryOptions elsewhere.
     const currentWatchQueryOptions = this.watchQueryOptions;
     const currentResult = this.result;
-    let needToSetResult = false;
+    let finish: undefined | (() => Promise<ApolloQueryResult<TData>>);
     if (!equal(watchQueryOptions, currentWatchQueryOptions)) {
       this.watchQueryOptions = watchQueryOptions;
       if (currentWatchQueryOptions && this.observable) {
@@ -141,25 +141,24 @@ class InternalState<TData, TVariables> {
         // block, we need getCurrentResult to return an appropriate loading
         // result synchronously (later within the same call to useQuery). Since
         // we already have this.observable here (not true for the very first
-        // call to useQuery), we are not initiating any new subscriptions,
-        // though it does feel less than ideal to be (potentially) kicking off a
-        // network request (for example, if the variables have changed).
-        this.observable.setOptions(watchQueryOptions).catch(() => {});
-        needToSetResult = true;
+        // call to useQuery), we are not initiating any new subscriptions, and
+        // we use reobserveLazy to avoid kicking off a network request.
+        finish = this.observable.reobserveLazy(watchQueryOptions);
       }
     }
     useEffect(() => {
       // If we called this.observable.reobserve above, and this.result hasn't
       // changed since then, report the latest current result to this.setResult.
-      if (needToSetResult && this.result === currentResult) {
-        const latestResult = this.observable.getCurrentResult();
+      if (finish && this.result === currentResult) {
+        const latestResult = this.getCurrentResult();
+        finish().catch(() => {});
         if (!equal(latestResult, currentResult)) {
           // This usually forces a rerender, which is why it must be done in
           // useEffect.
           this.setResult(latestResult);
         }
       }
-    }, [needToSetResult, currentResult]);
+    }, [finish, currentResult]);
 
     this.ssrDisabled = !!(
       options.ssr === false ||
