@@ -317,23 +317,25 @@ class InternalState<TData, TVariables> {
       }
     }
 
-    const prevOptionsRef = useRef({
-      watchQueryOptions: this.watchQueryOptions,
-    });
+    const prevOptionsRef = useRef(this.watchQueryOptions);
+
+    let finishReobserving: undefined | (() => Promise<ApolloQueryResult<TData>>);
+    if (
+      prevOptionsRef.current &&
+      this.watchQueryOptions !== prevOptionsRef.current
+    ) {
+      finishReobserving = obsQuery.reobserveLazy(
+        prevOptionsRef.current = this.watchQueryOptions
+      );
+    }
 
     // An effect to keep obsQuery.options up to date in case
     // state.watchQueryOptions changes.
     useEffect(() => {
       if (this.renderPromises) {
         // Do nothing during server rendering.
-      } else if (
-        // The useOptions method only updates this.watchQueryOptions if new new
-        // watchQueryOptions are not deep-equal to the previous options, so we
-        // only need a reference check (!==) here.
-        this.watchQueryOptions !== prevOptionsRef.current.watchQueryOptions
-      ) {
-        obsQuery.setOptions(this.watchQueryOptions).catch(() => {});
-        prevOptionsRef.current.watchQueryOptions = this.watchQueryOptions;
+      } else if (finishReobserving) {
+        finishReobserving().catch(() => {});
         this.setResult(obsQuery.getCurrentResult());
       }
     }, [obsQuery, this.watchQueryOptions]);
