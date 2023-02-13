@@ -7,7 +7,7 @@ module.exports = {
   },
   globals: {
     'ts-jest': {
-      diagnostics: true,
+      diagnostics: false,
       tsconfig: {
         ...compilerOptions,
         allowJs: true,
