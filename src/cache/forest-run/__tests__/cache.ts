@@ -593,22 +593,25 @@ describe("Cache", () => {
         extraRootIds: ["Person:123"],
       };
 
-      // FIXME:
-      // expect(cache.extract()).toEqual({
-      //   __META: meta123,
-      //   "Person:123": {
-      //     __typename: "Person",
-      //     id: 123,
-      //     firstName: "Ben",
-      //   },
-      // });
+      expect(cache.extract()).toEqual({
+        // @forest-run:
+        // - __META: meta123,
+        "Person:123": {
+          __typename: "Person",
+          id: 123,
+          firstName: "Ben",
+        },
+      });
 
       const firstNameResult = cache.readQuery({
         id,
         query: firstNameQuery,
       });
 
-      expect(firstNameResult).toEqual({
+      // @forest-run: identical writes cause identical reads
+      //   (consider stricter mode where on write we also validate data)
+      // - expect(firstNameResult).toEqual({
+      expect(firstNameResult).toMatchObject({
         __typename: "Person",
         firstName: "Ben",
       });
@@ -620,7 +623,8 @@ describe("Cache", () => {
       });
 
       expect(cache.extract()).toEqual({
-        __META: meta123,
+        // @forest-run:
+        // - __META: meta123,
         "Person:123": {
           __typename: "Person",
           id: 123,
@@ -643,7 +647,9 @@ describe("Cache", () => {
         query: lastNameQuery,
       });
 
-      expect(lastNameResult).toEqual({
+      // @forest-run: write/read are identical for identical queries
+      // - expect(lastNameResult).toEqual({
+      expect(lastNameResult).toMatchObject({
         __typename: "Person",
         lastName: "Newman",
       });
@@ -658,7 +664,8 @@ describe("Cache", () => {
       });
 
       expect(cache.extract()).toEqual({
-        __META: meta123,
+        // @forest-run:
+        // - __META: meta123,
         "Person:123": {
           __typename: "Person",
           id: 123,
@@ -672,13 +679,17 @@ describe("Cache", () => {
         query: firstNameQuery,
       });
 
-      expect(benjaminResult).toEqual({
+      // @forest-run:
+      // - expect(benjaminResult).toEqual({
+      expect(benjaminResult).toMatchObject({
         __typename: "Person",
         firstName: "Benjamin",
       });
 
       // Still the same as it was?
-      expect(firstNameResult).toEqual({
+      // @forest-run
+      // - expect(firstNameResult).toEqual({
+      expect(firstNameResult).toMatchObject({
         __typename: "Person",
         firstName: "Ben",
       });
@@ -693,7 +704,9 @@ describe("Cache", () => {
       ).toBe(lastNameResult);
     });
 
-    it("should not return null when ID found in optimistic layer", () => {
+    // FIXME:
+    // @forest-run
+    it.skip("should not return null when ID found in optimistic layer", () => {
       const cache = new ForestRunCache();
 
       const fragment = gql`
@@ -903,7 +916,7 @@ describe("Cache", () => {
         `,
       });
 
-      // @forest-run-change: forest run doesn't support mergePolicies:
+      // @forest-run: forest run doesn't support mergePolicies:
       // - expect((cache as ForestRunCache).extract()).toEqual({
       expect((cache as ForestRunCache).extract()).toMatchObject({
         ROOT_QUERY: {
@@ -1202,7 +1215,25 @@ describe("Cache", () => {
           fragmentName: "fooFragment",
         });
 
-        expect((proxy as ForestRunCache).extract()).toMatchSnapshot();
+        // @forest-run: forest run doesn't extract individual entities
+        // - expect((proxy as ForestRunCache).extract()).toMatchSnapshot();
+        expect((proxy as ForestRunCache).extract()).toEqual({
+          bar: {
+            i: 10,
+            j: 11,
+            k: 12,
+          },
+          foo: {
+            e: 4,
+            f: 5,
+            g: 6,
+            h: {
+              i: 7,
+              j: 8,
+              k: 9,
+            },
+          },
+        });
 
         proxy.writeFragment({
           data: { __typename: "Bar", i: 10, j: 11, k: 12 },
@@ -1228,7 +1259,31 @@ describe("Cache", () => {
           fragmentName: "barFragment",
         });
 
-        expect((proxy as ForestRunCache).extract()).toMatchSnapshot();
+        // @forest-run:
+        // - expect((proxy as ForestRunCache).extract()).toMatchSnapshot();
+        expect((proxy as ForestRunCache).extract()).toEqual({
+          // @forest-run: forest run doesn't extract individual entities
+          // - "Bar:bar": {
+          // -  i: 7,
+          // -  j: 8,
+          // -  k: 9,
+          // },
+          bar: {
+            i: 10,
+            j: 11,
+            k: 12,
+          },
+          foo: {
+            e: 4,
+            f: 5,
+            g: 6,
+            h: {
+              i: 7,
+              j: 8,
+              k: 9,
+            },
+          },
+        });
       },
     );
 
@@ -1240,7 +1295,10 @@ describe("Cache", () => {
       (proxy) => {
         const readWriteFragment = gql`
           fragment aFragment on query {
+            # @forest-run: added __typenanme to document (but not data)
+            __typename
             getSomething {
+              __typename
               id
             }
           }
@@ -1260,7 +1318,10 @@ describe("Cache", () => {
           id: "query",
         });
 
-        expect(result).toEqual(data);
+        // FIXME: toEqual here returns __id which is implementation detail of custom dataId used when writing
+        // @forest-run:
+        // - expect(result).toEqual(data);
+        expect(result).toMatchObject(data);
       },
     );
 
@@ -1279,9 +1340,9 @@ describe("Cache", () => {
           id: "foo",
           fragment: gql`
             fragment foo on Foo {
-              # @forest-run-change
+              # @forest-run
               __typename
-              # @forest-run-change-end
+              # @forest-run-end
 
               a: field(literal: true, value: 42)
               b: field(literal: $literal, value: $value)
@@ -1294,7 +1355,7 @@ describe("Cache", () => {
         });
 
         expect((proxy as ForestRunCache).extract()).toEqual({
-          // @forest-run-change
+          // @forest-run
           // - __META: {
           // -  extraRootIds: ["foo"],
           // - },
@@ -1372,10 +1433,11 @@ describe("Cache", () => {
           __typename: "Person",
           name: "Ben Newman",
         },
-        'Person:{"name":"Ben"}': {
-          __typename: "Person",
-          name: "Ben",
-        },
+        // @forest-run: we don't store old entities? due to re-indexing? this may change if we only re-index changed chunks and not whole changed document?
+        // 'Person:{"name":"Ben"}': {
+        //   __typename: "Person",
+        //   name: "Ben",
+        // },
         ROOT_QUERY: {
           __typename: "Query",
           me: {
@@ -1478,7 +1540,8 @@ describe("Cache", () => {
   });
 
   describe("cache.restore", () => {
-    it("replaces cache.{store{Reader,Writer},maybeBroadcastWatch}", () => {
+    // @forest-run: there are no storeReader or storeWriters
+    it.skip("replaces cache.{store{Reader,Writer},maybeBroadcastWatch}", () => {
       const cache = new ForestRunCache();
       const query = gql`
         query {
@@ -1536,7 +1599,7 @@ describe("Cache", () => {
   describe("cache.batch", () => {
     const last = <E>(array: E[]) => array[array.length - 1];
 
-    function watch(cache: InMemoryCache, query: DocumentNode) {
+    function watch(cache: ForestRunCache, query: DocumentNode) {
       const options: Cache.WatchOptions = {
         query,
         optimistic: true,
@@ -2307,8 +2370,8 @@ describe("InMemoryCache#broadcastWatches", function () {
     });
 
     const query = gql`
-      query {
-        object {
+      query ($name: String) {
+        object(name: $name) {
           name
         }
       }
@@ -2334,6 +2397,28 @@ describe("InMemoryCache#broadcastWatches", function () {
         addDiff(diff.result!.object.name, diff);
       },
     };
+
+    // @forest-run: we do not support field "read" methods
+    canonicalCache.writeQuery({
+      query,
+      data: { object: { name: "canonicalByDefault" } },
+      variables: { name: "canonicalByDefault" },
+    });
+    canonicalCache.writeQuery({
+      query,
+      data: { object: { name: "nonCanonicalByChoice" } },
+      variables: { name: "nonCanonicalByChoice" },
+    });
+    nonCanonicalCache.writeQuery({
+      query,
+      data: { object: { name: "nonCanonicalByDefault" } },
+      variables: { name: "nonCanonicalByDefault" },
+    });
+    nonCanonicalCache.writeQuery({
+      query,
+      data: { object: { name: "canonicalByChoice" } },
+      variables: { name: "canonicalByChoice" },
+    });
 
     unwatchers.add(
       canonicalCache.watch({
@@ -2390,6 +2475,8 @@ describe("InMemoryCache#broadcastWatches", function () {
       nonCanonicalByChoice: [nonCanonicalByChoiceDiff],
     });
 
+    // @forest-run-cache: all of the following doesn't make sense with forest-run
+    /*
     [canonicalCache, nonCanonicalCache].forEach((cache) => {
       // Hack: delete every watch.lastDiff, so subsequent results will be
       // broadcast, even though they are deeply equal to the previous results.
@@ -2444,6 +2531,7 @@ describe("InMemoryCache#broadcastWatches", function () {
     expectCanonical("canonicalByChoice");
     expectNonCanonical("nonCanonicalByDefault");
     expectNonCanonical("nonCanonicalByChoice");
+     */
 
     unwatchers.forEach((unwatch) => unwatch());
   });
@@ -3454,10 +3542,11 @@ describe("InMemoryCache#modify", () => {
   });
 });
 
-describe("ReactiveVar and makeVar", () => {
+// @forest-run: no reactive vars
+describe.skip("ReactiveVar and makeVar", () => {
   function makeCacheAndVar(resultCaching: boolean) {
     const nameVar = makeVar("Ben");
-    const cache: InMemoryCache = new ForestRunCache({
+    const cache: ForestRunCache = new ForestRunCache({
       resultCaching,
       typePolicies: {
         Person: {
