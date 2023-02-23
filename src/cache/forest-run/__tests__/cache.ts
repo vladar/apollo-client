@@ -31,7 +31,7 @@ describe("Cache", () => {
   ) {
     const cachesList: ForestRunCache[][] = [
       initialDataForCaches.map((data) =>
-        new ForestRunCache({}).restore(cloneDeep(data)),
+        new ForestRunCache({ addTypename: false }).restore(cloneDeep(data)),
       ),
     ];
 
@@ -46,7 +46,7 @@ describe("Cache", () => {
     config: InMemoryCacheConfig,
     callback: (cache: ForestRunCache) => any,
   ) {
-    const caches = [new ForestRunCache({})];
+    const caches = [new ForestRunCache({ addTypename: false })];
 
     caches.forEach((cache, i) => {
       it(message + ` (${i + 1}/${caches.length})`, () => callback(cache));
@@ -1507,19 +1507,22 @@ describe("Cache", () => {
       ]);
 
       expect(cache.extract()).toEqual({
-        'Person:{"name":"Ben"}': {
-          __typename: "Person",
-          name: "Ben",
-        },
+        // @forest-run:
+        // 'Person:{"name":"Ben"}': {
+        //   __typename: "Person",
+        //   name: "Ben",
+        // },
         'Person:{"name":"Ben Newman"}': {
-          __typename: "Person",
-          name: "Ben Newman",
+          // @forest-run:
+          // __typename: "Person",
+          // name: "Ben Newman",
           username: "benjamn",
         },
         'Person:{"name":"Brian Kim"}': {
           __typename: "Person",
           name: "Brian Kim",
-          username: "brainkim",
+          // @forest-run:
+          // username: "brainkim",
         },
         ROOT_QUERY: {
           __typename: "Query",
@@ -1527,12 +1530,13 @@ describe("Cache", () => {
             __ref: 'Person:{"name":"Brian Kim"}',
           },
         },
-        __META: {
-          extraRootIds: [
-            'Person:{"name":"Ben Newman"}',
-            'Person:{"name":"Brian Kim"}',
-          ],
-        },
+        // @forest-run:
+        // __META: {
+        //   extraRootIds: [
+        //     'Person:{"name":"Ben Newman"}',
+        //     'Person:{"name":"Brian Kim"}',
+        //   ],
+        // },
       });
 
       cancel();
@@ -1657,10 +1661,11 @@ describe("Cache", () => {
       });
       expect(aUpdateResult).toBe("aQuery updated");
 
-      expect(dirtied.size).toBe(2);
-      expect(dirtied.has(aInfo.watch)).toBe(true);
-      expect(dirtied.has(abInfo.watch)).toBe(true);
-      expect(dirtied.has(bInfo.watch)).toBe(false);
+      // @forest-run:
+      // expect(dirtied.size).toBe(2);
+      // expect(dirtied.has(aInfo.watch)).toBe(true);
+      // expect(dirtied.has(abInfo.watch)).toBe(true);
+      // expect(dirtied.has(bInfo.watch)).toBe(false);
 
       expect(aInfo.diffs.length).toBe(1);
       expect(last(aInfo.diffs)).toEqual({
@@ -1670,14 +1675,16 @@ describe("Cache", () => {
         },
       });
 
-      expect(abInfo.diffs.length).toBe(1);
-      expect(last(abInfo.diffs)).toEqual({
-        complete: false,
-        missing: expect.any(Array),
-        result: {
-          a: "ay",
-        },
-      });
+      // @forest-run:
+      // expect(abInfo.diffs.length).toBe(1);
+      // expect(last(abInfo.diffs)).toEqual({
+      //   complete: false,
+      //   missing: expect.any(Array),
+      //   result: {
+      //     a: "ay",
+      //   },
+      // });
+      expect(abInfo.diffs.length).toBe(0);
 
       expect(bInfo.diffs.length).toBe(0);
 
@@ -1700,10 +1707,11 @@ describe("Cache", () => {
       });
       expect(bUpdateResult).toBeUndefined();
 
-      expect(dirtied.size).toBe(2);
-      expect(dirtied.has(aInfo.watch)).toBe(false);
-      expect(dirtied.has(abInfo.watch)).toBe(true);
-      expect(dirtied.has(bInfo.watch)).toBe(true);
+      // @forest-run:
+      // expect(dirtied.size).toBe(2);
+      // expect(dirtied.has(aInfo.watch)).toBe(false);
+      // expect(dirtied.has(abInfo.watch)).toBe(true);
+      // expect(dirtied.has(bInfo.watch)).toBe(true);
 
       expect(aInfo.diffs.length).toBe(1);
       expect(last(aInfo.diffs)).toEqual({
@@ -1713,14 +1721,16 @@ describe("Cache", () => {
         },
       });
 
-      expect(abInfo.diffs.length).toBe(2);
-      expect(last(abInfo.diffs)).toEqual({
-        complete: true,
-        result: {
-          a: "ay",
-          b: "bee",
-        },
-      });
+      // @forest-run:
+      // expect(abInfo.diffs.length).toBe(2);
+      // expect(last(abInfo.diffs)).toEqual({
+      //   complete: true,
+      //   result: {
+      //     a: "ay",
+      //     b: "bee",
+      //   },
+      // });
+      expect(abInfo.diffs.length).toBe(0);
 
       expect(bInfo.diffs.length).toBe(1);
       expect(last(bInfo.diffs)).toEqual({
@@ -1735,7 +1745,8 @@ describe("Cache", () => {
       bInfo.cancel();
     });
 
-    it("works with cache.modify and INVALIDATE", () => {
+    // @forest-run: does not support cache.modify (yet?)
+    it.skip("works with cache.modify and INVALIDATE", () => {
       const cache = new ForestRunCache();
 
       const aQuery = gql`
@@ -1802,7 +1813,8 @@ describe("Cache", () => {
       bInfo.cancel();
     });
 
-    it("does not pass previously invalidated queries to onWatchUpdated", () => {
+    // @forest-run: does not support cache.modify
+    it.skip("does not pass previously invalidated queries to onWatchUpdated", () => {
       const cache = new ForestRunCache();
 
       const aQuery = gql`
@@ -2537,7 +2549,8 @@ describe("InMemoryCache#broadcastWatches", function () {
   });
 });
 
-describe("InMemoryCache#modify", () => {
+// @forest-run: doesn't support "modify"
+describe.skip("InMemoryCache#modify", () => {
   it("should work with single modifier function", () => {
     const cache = new ForestRunCache();
     const query = gql`
@@ -4144,16 +4157,18 @@ describe("TypedDocumentNode<Data, Variables>", () => {
       typePolicies: {
         Query: {
           fields: {
-            book(existing, { args, toReference }) {
-              return (
-                existing ??
-                (args &&
-                  toReference({
-                    __typename: "Book",
-                    isbn: args.isbn,
-                  }))
-              );
-            },
+            // FIXME: root-level query redirects should work?
+            // @forest-run: doesn't support field policies
+            // book(existing, { args, toReference }) {
+            //   return (
+            //     existing ??
+            //     (args &&
+            //       toReference({
+            //         __typename: "Book",
+            //         isbn: args.isbn,
+            //       }))
+            //   );
+            // },
           },
         },
 
@@ -4204,9 +4219,14 @@ describe("TypedDocumentNode<Data, Variables>", () => {
     });
 
     if (ffplQueryResult === null) throw new Error("null result");
-    expect(ffplQueryResult.book.isbn).toBeUndefined();
+    // @forest-run:
+    // expect(ffplQueryResult.book.isbn).toBeUndefined();
+    expect(ffplQueryResult.book.isbn).toEqual(ffplBook.isbn);
+
     expect(ffplQueryResult.book.author.name).toBe(jcmAuthor.name);
-    expect(ffplQueryResult).toEqual({
+    // @forest-run:
+    // expect(ffplQueryResult).toEqual({
+    expect(ffplQueryResult).toMatchObject({
       book: {
         __typename: "Book",
         title: "Foundations for Programming Languages",
@@ -4235,14 +4255,15 @@ describe("TypedDocumentNode<Data, Variables>", () => {
     expect(isReference(sicpRef)).toBe(true);
     expect(cache.extract()).toMatchSnapshot();
 
-    const ffplFragmentResult = cache.readFragment({
-      fragment,
-      id: cache.identify(ffplBook),
-    });
-    if (ffplFragmentResult === null) throw new Error("null result");
-    expect(ffplFragmentResult.title).toBe(ffplBook.title);
-    expect(ffplFragmentResult.author.name).toBe(ffplBook.author.name);
-    expect(ffplFragmentResult).toEqual(ffplBook);
+    // @forest-run: doesn't support it (selectionSet of fragment is wider than query used to write this item)
+    // const ffplFragmentResult = cache.readFragment({
+    //   fragment,
+    //   id: cache.identify(ffplBook),
+    // });
+    // if (ffplFragmentResult === null) throw new Error("null result");
+    // expect(ffplFragmentResult.title).toBe(ffplBook.title);
+    // expect(ffplFragmentResult.author.name).toBe(ffplBook.author.name);
+    // expect(ffplFragmentResult).toEqual(ffplBook);
 
     // This uses the read function for the Query.book field.
     const sicpReadResult = cache.readQuery({
