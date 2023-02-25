@@ -1073,9 +1073,10 @@ describe('ApolloClient', () => {
       });
 
       expect((client.cache as ForestRunCache).extract()).toEqual({
-        __META: {
-          extraRootIds: ['foo'],
-        },
+        // @forest-run:
+        // __META: {
+        //   extraRootIds: ['foo'],
+        // },
         foo: {
           __typename: 'Foo',
           'field({"literal":true,"value":42})': 1,

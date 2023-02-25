@@ -1513,8 +1513,8 @@ describe("Cache", () => {
         //   name: "Ben",
         // },
         'Person:{"name":"Ben Newman"}': {
+          __typename: "Person",
           // @forest-run:
-          // __typename: "Person",
           // name: "Ben Newman",
           username: "benjamn",
         },

@@ -1200,11 +1200,9 @@ describe("diffing queries against the store", () => {
       // Check first using generated IDs.
       check(
         writeQueryToStore({
-          writer: new StoreWriter(
-            new ForestRunCache({
-              dataIdFromObject: void 0,
-            }),
-          ),
+          cache: new ForestRunCache({
+            dataIdFromObject: void 0,
+          }),
           query,
           result: {
             user: company.users[0],
@@ -1215,11 +1213,9 @@ describe("diffing queries against the store", () => {
       // Now check with __typename-specific IDs.
       check(
         writeQueryToStore({
-          writer: new StoreWriter(
-            new ForestRunCache({
-              dataIdFromObject: defaultDataIdFromObject,
-            }),
-          ),
+          cache: new ForestRunCache({
+            dataIdFromObject: defaultDataIdFromObject,
+          }),
           query,
           result: {
             user: company.users[0],
