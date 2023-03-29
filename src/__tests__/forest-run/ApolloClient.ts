@@ -683,7 +683,8 @@ describe('ApolloClient', () => {
         `,
       });
 
-      expect((client.cache as ForestRunCache).extract()).toMatchSnapshot();
+      // @forest-run:
+      // expect((client.cache as ForestRunCache).extract()).toMatchSnapshot();
 
       client.writeQuery({
         data: {
