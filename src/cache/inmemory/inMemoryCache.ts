@@ -1,37 +1,40 @@
-import { invariant } from '../../utilities/globals';
+import { invariant } from "../../utilities/globals";
 
 // Make builtins like Map and Set safe to use with non-extensible objects.
-import './fixPolyfills';
+import "./fixPolyfills";
 
-import { DocumentNode } from 'graphql';
-import { OptimisticWrapperFunction, wrap } from 'optimism';
-import { equal } from '@wry/equality';
+import { DocumentNode } from "graphql";
+import { OptimisticWrapperFunction, wrap } from "optimism";
+import { equal } from "@wry/equality";
 
-import { ApolloCache } from '../core/cache';
-import { Cache } from '../core/types/Cache';
-import { MissingFieldError } from '../core/types/common';
+import { ApolloCache } from "../core/cache";
+import { Cache } from "../core/types/Cache";
+import { MissingFieldError } from "../core/types/common";
 import {
   addTypenameToDocument,
   StoreObject,
   Reference,
   isReference,
-} from '../../utilities';
-import { InMemoryCacheConfig, NormalizedCacheObject } from './types';
-import { StoreReader } from './readFromStore';
-import { StoreWriter } from './writeToStore';
-import { EntityStore, supportsResultCaching } from './entityStore';
-import { makeVar, forgetCache, recallCache } from './reactiveVars';
-import { Policies } from './policies';
-import { hasOwn, normalizeConfig, shouldCanonizeResults } from './helpers';
-import { canonicalStringify } from './object-canon';
+} from "../../utilities";
+import { InMemoryCacheConfig, NormalizedCacheObject } from "./types";
+import { StoreReader } from "./readFromStore";
+import { StoreWriter } from "./writeToStore";
+import { EntityStore, supportsResultCaching } from "./entityStore";
+import { makeVar, forgetCache, recallCache } from "./reactiveVars";
+import { Policies } from "./policies";
+import { hasOwn, normalizeConfig, shouldCanonizeResults } from "./helpers";
+import { canonicalStringify } from "./object-canon";
+
+import { ForestRunCache } from "forest-run";
 
 type BroadcastOptions = Pick<
   Cache.BatchOptions<InMemoryCache>,
-  | "optimistic"
-  | "onWatchUpdated"
->
+  "optimistic" | "onWatchUpdated"
+>;
 
-export class InMemoryCache extends ApolloCache<NormalizedCacheObject> {
+export class InMemoryCache extends ForestRunCache {}
+
+class InMemoryCache_old extends ApolloCache<NormalizedCacheObject> {
   private data: EntityStore;
   private optimisticData: EntityStore;
 
@@ -46,7 +49,8 @@ export class InMemoryCache extends ApolloCache<NormalizedCacheObject> {
   private maybeBroadcastWatch: OptimisticWrapperFunction<
     [Cache.WatchOptions, BroadcastOptions?],
     any,
-    [Cache.WatchOptions]>;
+    [Cache.WatchOptions]
+  >;
 
   // Dynamically imported code can augment existing typePolicies or
   // possibleTypes by calling cache.policies.addTypePolicies or
@@ -74,10 +78,10 @@ export class InMemoryCache extends ApolloCache<NormalizedCacheObject> {
     // Passing { resultCaching: false } in the InMemoryCache constructor options
     // will completely disable dependency tracking, which will improve memory
     // usage but worsen the performance of repeated reads.
-    const rootStore = this.data = new EntityStore.Root({
+    const rootStore = (this.data = new EntityStore.Root({
       policies: this.policies,
       resultCaching: this.config.resultCaching,
-    });
+    }));
 
     // When no optimistic writes are currently active, cache.optimisticData ===
     // cache.data, so there are no additional layers on top of the actual data.
@@ -97,7 +101,7 @@ export class InMemoryCache extends ApolloCache<NormalizedCacheObject> {
     // so it's simpler to update this.storeWriter as well.
     this.storeWriter = new StoreWriter(
       this,
-      this.storeReader = new StoreReader({
+      (this.storeReader = new StoreReader({
         cache: this,
         addTypename: this.addTypename,
         resultCacheMaxSize: this.config.resultCacheMaxSize,
@@ -105,44 +109,43 @@ export class InMemoryCache extends ApolloCache<NormalizedCacheObject> {
         canon: resetResultIdentities
           ? void 0
           : previousReader && previousReader.canon,
-      }),
+      })),
     );
 
-    this.maybeBroadcastWatch = wrap((
-      c: Cache.WatchOptions,
-      options?: BroadcastOptions,
-    ) => {
-      return this.broadcastWatch(c, options);
-    }, {
-      max: this.config.resultCacheMaxSize,
-      makeCacheKey: (c: Cache.WatchOptions) => {
-        // Return a cache key (thus enabling result caching) only if we're
-        // currently using a data store that can track cache dependencies.
-        const store = c.optimistic ? this.optimisticData : this.data;
-        if (supportsResultCaching(store)) {
-          const { optimistic, rootId, variables } = c;
-          return store.makeCacheKey(
-            c.query,
-            // Different watches can have the same query, optimistic
-            // status, rootId, and variables, but if their callbacks are
-            // different, the (identical) result needs to be delivered to
-            // each distinct callback. The easiest way to achieve that
-            // separation is to include c.callback in the cache key for
-            // maybeBroadcastWatch calls. See issue #5733.
-            c.callback,
-            canonicalStringify({ optimistic, rootId, variables }),
-          );
-        }
-      }
-    });
+    this.maybeBroadcastWatch = wrap(
+      (c: Cache.WatchOptions, options?: BroadcastOptions) => {
+        return this.broadcastWatch(c, options);
+      },
+      {
+        max: this.config.resultCacheMaxSize,
+        makeCacheKey: (c: Cache.WatchOptions) => {
+          // Return a cache key (thus enabling result caching) only if we're
+          // currently using a data store that can track cache dependencies.
+          const store = c.optimistic ? this.optimisticData : this.data;
+          if (supportsResultCaching(store)) {
+            const { optimistic, rootId, variables } = c;
+            return store.makeCacheKey(
+              c.query,
+              // Different watches can have the same query, optimistic
+              // status, rootId, and variables, but if their callbacks are
+              // different, the (identical) result needs to be delivered to
+              // each distinct callback. The easiest way to achieve that
+              // separation is to include c.callback in the cache key for
+              // maybeBroadcastWatch calls. See issue #5733.
+              c.callback,
+              canonicalStringify({ optimistic, rootId, variables }),
+            );
+          }
+        },
+      },
+    );
 
     // Since we have thrown away all the cached functions that depend on the
     // CacheGroup dependencies maintained by EntityStore, we should also reset
     // all CacheGroup dependency information.
-    new Set([
-      this.data.group,
-      this.optimisticData.group,
-    ]).forEach(group => group.resetCaching());
+    new Set([this.data.group, this.optimisticData.group]).forEach((group) =>
+      group.resetCaching(),
+    );
   }
 
   public restore(data: NormalizedCacheObject): this {
@@ -170,12 +173,14 @@ export class InMemoryCache extends ApolloCache<NormalizedCacheObject> {
       returnPartialData = false,
     } = options;
     try {
-      return this.storeReader.diffQueryAgainstStore<T>({
-        ...options,
-        store: options.optimistic ? this.optimisticData : this.data,
-        config: this.config,
-        returnPartialData,
-      }).result || null;
+      return (
+        this.storeReader.diffQueryAgainstStore<T>({
+          ...options,
+          store: options.optimistic ? this.optimisticData : this.data,
+          config: this.config,
+          returnPartialData,
+        }).result || null
+      );
     } catch (e) {
       if (e instanceof MissingFieldError) {
         // Swallow MissingFieldError and return null, so callers do not
@@ -361,7 +366,7 @@ export class InMemoryCache extends ApolloCache<NormalizedCacheObject> {
     if (options && options.discardWatches) {
       // Similar to what happens in the unsubscribe function returned by
       // cache.watch, applied to all current watches.
-      this.watches.forEach(watch => this.maybeBroadcastWatch.forget(watch));
+      this.watches.forEach((watch) => this.maybeBroadcastWatch.forget(watch));
       this.watches.clear();
       forgetCache(this);
     } else {
@@ -405,7 +410,7 @@ export class InMemoryCache extends ApolloCache<NormalizedCacheObject> {
         this.data = this.optimisticData = layer;
       }
       try {
-        return updateResult = update(this);
+        return (updateResult = update(this));
       } finally {
         --this.txCount;
         this.data = data;
@@ -434,7 +439,7 @@ export class InMemoryCache extends ApolloCache<NormalizedCacheObject> {
       });
     }
 
-    if (typeof optimistic === 'string') {
+    if (typeof optimistic === "string") {
       // Note that there can be multiple layers with the same optimistic ID.
       // When removeOptimistic(id) is called for that id, all matching layers
       // will be removed, and the remaining layers will be reapplied.
@@ -471,12 +476,12 @@ export class InMemoryCache extends ApolloCache<NormalizedCacheObject> {
             alreadyDirty.delete(watch);
           }
           return result;
-        }
+        },
       });
       // Silently re-dirty any watches that were already dirty before the update
       // was performed, and were not broadcast just now.
       if (alreadyDirty.size) {
-        alreadyDirty.forEach(watch => this.maybeBroadcastWatch.dirty(watch));
+        alreadyDirty.forEach((watch) => this.maybeBroadcastWatch.dirty(watch));
       }
     } else {
       // If alreadyDirty is empty or we don't have an onWatchUpdated
@@ -494,7 +499,7 @@ export class InMemoryCache extends ApolloCache<NormalizedCacheObject> {
   ) {
     return this.batch({
       update,
-      optimistic: optimisticId || (optimisticId !== null),
+      optimistic: optimisticId || optimisticId !== null,
     });
   }
 
@@ -516,7 +521,7 @@ export class InMemoryCache extends ApolloCache<NormalizedCacheObject> {
 
   protected broadcastWatches(options?: BroadcastOptions) {
     if (!this.txCount) {
-      this.watches.forEach(c => this.maybeBroadcastWatch(c, options));
+      this.watches.forEach((c) => this.maybeBroadcastWatch(c, options));
     }
   }
 
@@ -526,10 +531,7 @@ export class InMemoryCache extends ApolloCache<NormalizedCacheObject> {
   // simpler to check for changes after recomputing a result but before
   // broadcasting it, but this wrapping approach allows us to skip both
   // the recomputation and the broadcast, in most cases.
-  private broadcastWatch(
-    c: Cache.WatchOptions,
-    options?: BroadcastOptions,
-  ) {
+  private broadcastWatch(c: Cache.WatchOptions, options?: BroadcastOptions) {
     const { lastDiff } = c;
 
     // Both WatchOptions and DiffOptions extend ReadOptions, and DiffOptions
@@ -541,13 +543,14 @@ export class InMemoryCache extends ApolloCache<NormalizedCacheObject> {
     const diff = this.diff<any>(c);
 
     if (options) {
-      if (c.optimistic &&
-          typeof options.optimistic === "string") {
+      if (c.optimistic && typeof options.optimistic === "string") {
         diff.fromOptimisticTransaction = true;
       }
 
-      if (options.onWatchUpdated &&
-          options.onWatchUpdated.call(this, c, diff, lastDiff) === false) {
+      if (
+        options.onWatchUpdated &&
+        options.onWatchUpdated.call(this, c, diff, lastDiff) === false
+      ) {
         // Returning false from the onWatchUpdated callback will prevent
         // calling c.callback(diff) for this watcher.
         return;
@@ -555,7 +558,7 @@ export class InMemoryCache extends ApolloCache<NormalizedCacheObject> {
     }
 
     if (!lastDiff || !equal(lastDiff.result, diff.result)) {
-      c.callback(c.lastDiff = diff, lastDiff);
+      c.callback((c.lastDiff = diff), lastDiff);
     }
   }
 }
