@@ -34,7 +34,7 @@ type BroadcastOptions = Pick<
 
 export class InMemoryCache extends ForestRunCache {}
 
-class InMemoryCache_old extends ApolloCache<NormalizedCacheObject> {
+export class InMemoryCache_bak extends ApolloCache<NormalizedCacheObject> {
   private data: EntityStore;
   private optimisticData: EntityStore;
 
