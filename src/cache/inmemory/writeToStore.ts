@@ -116,11 +116,15 @@ export class StoreWriter {
     store: NormalizedCache,
     write: Cache.WriteOptions,
   ): Reference | undefined {
-    if (store.__forestRun && store.__forestRun !== this.cache) {
-      throw new Error("Mixed caches");
+    if (store instanceof InMemoryCache) {
+      return store.write(write);
     }
-    store.__forestRun = this.cache;
-    return this.cache.write(write);
+    if (!store.__forestRun) {
+      store.__forestRun = new InMemoryCache({ policies: store.policies });
+    }
+    return store.__forestRun.write(write);
+
+    // return this.cache.write(write);
   }
 }
 
