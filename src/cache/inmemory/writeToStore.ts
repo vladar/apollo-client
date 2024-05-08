@@ -125,11 +125,12 @@ export class StoreWriter {
         typePolicies: this.cache.rawConfig.typePolicies ?? store.policies,
       });
       store.toObject = () => {
-        return store.__forestRun.extract();
+        const { __META, ...rest } = store.__forestRun.extract();
+        return rest;
       };
       store.lookup = (key) => {
         return store.__forestRun.__lookup(key);
-      }
+      };
     }
     return store.__forestRun.write(write);
 
