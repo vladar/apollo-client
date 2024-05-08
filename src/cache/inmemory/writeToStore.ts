@@ -120,7 +120,16 @@ export class StoreWriter {
       return store.write(write);
     }
     if (!store.__forestRun) {
-      store.__forestRun = new InMemoryCache({ policies: store.policies });
+      store.__forestRun = new InMemoryCache({
+        ...this.cache.rawConfig,
+        typePolicies: this.cache.rawConfig.typePolicies ?? store.policies,
+      });
+      store.toObject = () => {
+        return store.__forestRun.extract();
+      };
+      store.lookup = (key) => {
+        return store.__forestRun.__lookup(key);
+      }
     }
     return store.__forestRun.write(write);
 

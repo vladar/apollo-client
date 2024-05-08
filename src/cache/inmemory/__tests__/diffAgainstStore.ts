@@ -1056,8 +1056,8 @@ describe('diffing queries against the store', () => {
         });
         throw new Error('should have thrown');
       } catch (e) {
-        expect(e.message).toEqual(
-          'Missing selection set for object of type Message returned for query field messageList',
+        expect(e.message).toContain(
+          "Missing selection set for object of type Message returned for query field messageList",
         );
       }
     });

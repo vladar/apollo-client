@@ -111,11 +111,27 @@ export class StoreReader {
     this.cache = config.cache;
   }
 
-  public diffQueryAgainstStore(options) {
-    if (options.store.__forestRun) {
-      return options.store.__forestRun.diff(options);
+  public diffQueryAgainstStore(options: DiffQueryAgainstStoreOptions) {
+    const store: any = options.store;
+    const result = store.__forestRun
+      ? store.__forestRun.diff({ ...options, optimistic: true })
+      : this.cache.diff({ ...options, optimistic: true });
+
+    if (result.missing) {
+      // Copy from Apollo
+      const missing = [
+        new MissingFieldError(
+          firstMissing(result.missing)!,
+          result.missing,
+          options.query,
+          options.variables,
+        ),
+      ];
+      if (options.returnPartialData === false) {
+        throw missing[0];
+      }
     }
-    return this.cache.diff(options);
+    return result;
   }
 }
 
