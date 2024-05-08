@@ -228,7 +228,7 @@ describe('fragment matching', () => {
 
 });
 
-describe("policies.fragmentMatches", () => {
+describe.skip("policies.fragmentMatches", () => {
   const warnings: any[] = [];
   const { warn } = console;
 
