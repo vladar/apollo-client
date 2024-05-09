@@ -124,7 +124,7 @@ export class StoreReader {
 
     if (result.missing) {
       if (options.returnPartialData === false) {
-        throw result.missing[0];
+        throw new Error(result.missing[0].message);
       }
     }
     return result;

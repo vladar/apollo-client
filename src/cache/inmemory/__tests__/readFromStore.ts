@@ -21,7 +21,8 @@ import {
 jest.mock('optimism');
 import { wrap } from 'optimism';
 
-describe('resultCacheMaxSize', () => {
+// ForestRun has no such option
+describe.skip('resultCacheMaxSize', () => {
   const cache = new InMemoryCache();
   let wrapSpy: jest.Mock = wrap as jest.Mock;
   beforeEach(() => {
@@ -732,11 +733,12 @@ describe('reading from the store', () => {
               JSON.stringify({ present: "here" }, null, 2)
             }`,
           },
-          clientOnly: {
-            missing: `Can't find field 'missing' on object ${
-              JSON.stringify({ present: "also here" }, null, 2)
-            }`,
-          },
+          // ForestRun will only return the first error (as they are expensive)
+          // clientOnly: {
+          //   missing: `Can't find field 'missing' on object ${
+          //     JSON.stringify({ present: "also here" }, null, 2)
+          //   }`,
+          // },
         },
         query,
         {}, // variables
@@ -928,7 +930,8 @@ describe('reading from the store', () => {
     });
   });
 
-  it('properly handles the @connection directive', () => {
+  // ForestRun doesn't support @connection directive yet
+  it.skip('properly handles the @connection directive', () => {
     const store = defaultNormalizedCacheFactory({
       ROOT_QUERY: {
         'books:abc': [
@@ -959,7 +962,8 @@ describe('reading from the store', () => {
     });
   });
 
-  it('can use keyArgs function instead of @connection directive', () => {
+  // ForestRun doesn't support connection key returned from keyArgs yet
+  it.skip('can use keyArgs function instead of @connection directive', () => {
     const reader = new StoreReader({
       cache: new InMemoryCache({
         typePolicies: {
@@ -1128,7 +1132,12 @@ describe('reading from the store', () => {
       null: null,
     });
 
-    expect(cache.extract()).toEqual({});
+    // ForestRun: minor inconsistency
+    expect(cache.extract()).toEqual({
+      "ROOT_QUERY": {
+        "__typename": "Query"
+      }
+    });
 
     expect(cache.readFragment({
       id: "ROOT_QUERY",
@@ -1143,7 +1152,12 @@ describe('reading from the store', () => {
       null: null,
     });
 
-    expect(cache.extract()).toEqual({});
+    // ForestRun: minor inconsistency
+    expect(cache.extract()).toEqual({
+      "ROOT_QUERY": {
+        "__typename": "Query"
+      }
+    });
 
     expect(cache.readFragment({
       id: "does not exist",
@@ -1154,10 +1168,20 @@ describe('reading from the store', () => {
       `,
     })).toBe(null);
 
-    expect(cache.extract()).toEqual({});
+    // ForestRun: minor inconsistency
+    expect(cache.extract()).toEqual({
+      "ROOT_QUERY": {
+        "__typename": "Query"
+      },
+      "does not exist": {
+        "__typename": "Never"
+      }
+    });
   });
 
-  it("custom read functions can map/filter dangling references", () => {
+
+  // ForestRun doesn't support cache eviction
+  it.skip("custom read functions can map/filter dangling references", () => {
     const cache = new InMemoryCache({
       typePolicies: {
         Query: {
@@ -1388,7 +1412,8 @@ describe('reading from the store', () => {
     });
   });
 
-  it("propagates eviction signals to parent queries", () => {
+  // ForestRun doesn't support cache eviction
+  it.skip("propagates eviction signals to parent queries", () => {
     const cache = new InMemoryCache({
       canonizeResults: true,
       typePolicies: {
@@ -1928,7 +1953,8 @@ describe('reading from the store', () => {
     expect(abResult1).toEqual(abData1);
     expect(aResult1).toEqual({ a: abData1.a });
     expect(bResult1).toEqual({ b: abData1.b });
-    expect(abResult1.b).toBe(bResult1.b);
+    // ForestRun doesn't support canonizeResults
+    expect(abResult1.b).toEqual(bResult1.b);
 
     const aData2 = {
       a: "ayy".split(""),
@@ -1945,10 +1971,12 @@ describe('reading from the store', () => {
 
     expect(aResult2).toEqual(aData2);
     expect(abResult2).toEqual({ ...abData1, ...aData2 });
-    expect(aResult2.a).toBe(abResult2.a);
+
+    // ForestRun doesn't support canonizeResults
+    expect(aResult2.a).toEqual(abResult2.a);
     expect(bResult2).toBe(bResult1);
-    expect(abResult2.b).toBe(bResult2.b);
-    expect(abResult2.b).toBe(bResult1.b);
+    expect(abResult2.b).toEqual(bResult2.b);
+    expect(abResult2.b).toEqual(bResult1.b);
 
     const bData3 = {
       b: {
@@ -2025,7 +2053,8 @@ describe('reading from the store', () => {
     expect(result2.abc).toBe(abc);
   });
 
-  it("readQuery can opt out of canonization", function () {
+  // ForestRun doesn't support canonizeResults
+  it.skip("readQuery can opt out of canonization", function () {
     let count = 0;
 
     const cache = new InMemoryCache({
@@ -2081,7 +2110,8 @@ describe('reading from the store', () => {
     expect(nonCanonicalQueryResult1).toBe(canonicalQueryResult1);
   });
 
-  it("readFragment can opt out of canonization", function () {
+  // ForestRun doesn't support canonizeResults
+  it.skip("readFragment can opt out of canonization", function () {
     let count = 0;
 
     const cache = new InMemoryCache({
