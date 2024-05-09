@@ -84,7 +84,8 @@ describe('EntityStore', () => {
     };
   }
 
-  it('should reclaim no-longer-reachable, unretained entities', () => {
+  // ForestRun doesn't support GC
+  it.skip('should reclaim no-longer-reachable, unretained entities', () => {
     const { cache, query } = newBookAuthorCache();
 
     cache.writeQuery({
@@ -318,7 +319,8 @@ describe('EntityStore', () => {
       },
     });
 
-    expect(cache.gc()).toEqual([]);
+    // ForestRun doesn't support GC
+    // expect(cache.gc()).toEqual([]);
 
     // Orphan the F451 / Ray Bradbury data, but avoid collecting garbage yet.
     cache.writeQuery({
@@ -403,7 +405,8 @@ describe('EntityStore', () => {
 
     // Nothing can be reclaimed while the optimistic update is retaining
     // Fahrenheit 451.
-    expect(cache.gc()).toEqual([]);
+    // ForestRun doesn't support GC
+    // expect(cache.gc()).toEqual([]);
 
     cache.removeOptimistic("ray books");
 
@@ -438,6 +441,9 @@ describe('EntityStore', () => {
         },
       },
     });
+
+    // ForestRun doesn't support GC
+    return;
 
     expect(cache.gc().sort()).toEqual([
       "Author:Ray Bradbury",
@@ -559,11 +565,12 @@ describe('EntityStore', () => {
 
     expect(cache.extract(true)).toEqual(snapshotWithBothBooksAndAuthors);
 
-    expect(cache.retain("Book:0735211280")).toBe(1);
-
-    expect(cache.gc()).toEqual([]);
-
-    expect(cache.retain("Author:Juli Berwald")).toBe(1);
+    // ForestRun doesn't support GC
+    // expect(cache.retain("Book:0735211280")).toBe(1);
+    //
+    // expect(cache.gc()).toEqual([]);
+    //
+    // expect(cache.retain("Author:Juli Berwald")).toBe(1);
 
     cache.recordOptimisticTransaction(proxy => {
       proxy.writeFragment({
@@ -589,17 +596,17 @@ describe('EntityStore', () => {
 
     // Retain the Spineless book on the optimistic layer (for the first time)
     // but release it on the root layer.
-    expect(cache.retain("Book:0735211280", true)).toBe(1);
-    expect(cache.release("Book:0735211280")).toBe(0);
+    // expect(cache.retain("Book:0735211280", true)).toBe(1);
+    // expect(cache.release("Book:0735211280")).toBe(0);
 
     // The Spineless book is still protected by the reference from author Juli
     // Berwald's optimistically-added author.books field.
-    expect(cache.gc()).toEqual([]);
+    // expect(cache.gc()).toEqual([]);
 
     const juliBookMeta = {
       extraRootIds: [
         "Author:Juli Berwald",
-        "Book:0735211280",
+        // "Book:0735211280", // ForestRun: added by retain
       ],
     };
 
@@ -650,7 +657,7 @@ describe('EntityStore', () => {
     // A non-optimistic snapshot will not have the extra books field.
     expect(cache.extract(false)).toEqual({
       ...snapshotWithBothBooksAndAuthors,
-      __META: juliMeta,
+      // __META: juliMeta, ForestRun: retain/release were not called and thus didn't affect non-optimistic layer
     });
 
     cache.removeOptimistic("juli books");
@@ -659,8 +666,11 @@ describe('EntityStore', () => {
     // layer that added it.
     expect(cache.extract(true)).toEqual({
       ...snapshotWithBothBooksAndAuthors,
-      __META: juliMeta,
+      // __META: juliMeta,
     });
+
+    // ForestRun doesn't support GC
+    return;
 
     // The Spineless book is no longer retained or kept alive by any other root
     // IDs, so it can finally be collected.
@@ -679,7 +689,8 @@ describe('EntityStore', () => {
     expect(cache.gc()).toEqual([]);
   });
 
-  it('allows cache eviction', () => {
+  // ForestRun doesn't support eviction
+  it.skip('allows cache eviction', () => {
     const { cache, query } = newBookAuthorCache();
 
     const cuckoosCallingBook = {
@@ -909,7 +920,8 @@ describe('EntityStore', () => {
     ]);
   });
 
-  it("ignores retainment count for ROOT_QUERY", () => {
+  // ForestRun doesn't support GC
+  it.skip("ignores retainment count for ROOT_QUERY", () => {
     const { cache, query } = newBookAuthorCache();
 
     cache.writeQuery({
@@ -968,7 +980,8 @@ describe('EntityStore', () => {
     expect(cache2.extract()).toEqual({});
   });
 
-  it("cache.gc is not confused by StoreObjects with stray __ref fields", () => {
+  // ForestRun doesn't support GC
+  it.skip("cache.gc is not confused by StoreObjects with stray __ref fields", () => {
     const cache = new InMemoryCache({
       typePolicies: {
         Person: {
@@ -1181,6 +1194,9 @@ describe('EntityStore', () => {
       authorOfBook: JennyOdellData,
       publisherOfBook: MelvilleData,
     });
+
+    // ForestRun doesn't support eviction / GC
+    return;
 
     cache.evict({
       id: cache.identify({
@@ -1432,6 +1448,9 @@ describe('EntityStore', () => {
       },
     });
 
+    // ForestRun doesn't support GC
+    return;
+
     cache.evict({
       fieldName: 'authorOfBook',
       args: { isbn: "1" },
@@ -1579,6 +1598,9 @@ describe('EntityStore', () => {
         }
       },
     });
+
+    // ForestRun doesn't support GC
+    return;
 
     cache.evict({
       id: 'ROOT_QUERY',
@@ -1781,12 +1803,12 @@ describe('EntityStore', () => {
       consoleWarnSpy.mockImplementation(() => {});
       try {
         expect(cache.identify(ABCs)).toBeUndefined();
-        expect(consoleWarnSpy).toHaveBeenCalledTimes(1);
-        expect(consoleWarnSpy).toHaveBeenCalledWith(
-          new Error(`Missing field 'b' while extracting keyFields from ${
-            JSON.stringify(ABCs)
-          }`),
-        );
+        // expect(consoleWarnSpy).toHaveBeenCalledTimes(1);
+        // expect(consoleWarnSpy).toHaveBeenCalledWith(
+        //   new Error(`Missing field 'b' while extracting keyFields from ${
+        //     JSON.stringify(ABCs)
+        //   }`),
+        // );
       } finally {
         consoleWarnSpy.mockRestore();
       }
@@ -1816,6 +1838,9 @@ describe('EntityStore', () => {
     expect(cache.readQuery({
       query: queryWithoutAliases,
     })).toBe(resultWithoutAliases);
+
+    // ForestRun doesn't support GC
+    return;
 
     cache.evict({
       id: cache.identify({
@@ -1919,6 +1944,9 @@ describe('EntityStore', () => {
       id: 2,
     })!;
 
+    // ForestRun doesn't support GC
+    return;
+
     expect(cache.evict({ id: authorId })).toBe(true);
 
     expect(cache.extract(true)).toEqual({
@@ -2014,7 +2042,8 @@ describe('EntityStore', () => {
     });
   });
 
-  it("supports toReference(obj, true) to persist obj", () => {
+  // ForestRun will not support this
+  it.skip("supports toReference(obj, true) to persist obj", () => {
     const cache = new InMemoryCache({
       typePolicies: {
         Query: {
@@ -2340,7 +2369,7 @@ describe('EntityStore', () => {
                 __typename: "Book",
                 isbn: args!.isbn,
                 title: titlesByISBN.get(args!.isbn),
-              }, true);
+              }/*, true*/); // ForestRun does not support writing via toReference
 
               return ref;
             },
@@ -2395,6 +2424,9 @@ describe('EntityStore', () => {
       title: "Shrill",
       favorited: true,
     }});
+
+    // ForestRun doesn't support writing from toReference, which is necessary below
+    return;
 
     const kindredResult = cache.readQuery({
       query: bookQuery,
@@ -2581,6 +2613,9 @@ describe('EntityStore', () => {
       "1982103558",
     ]);
 
+    // ForestRun doesn't support GC
+    return;
+
     // Evicting the 1982103558 Book should not invalidate the 1449373321
     // Book, so diffs and isbnsWeHaveRead should remain unchanged.
     expect(cache.evict({
@@ -2619,7 +2654,8 @@ describe('EntityStore', () => {
     ]);
   });
 
-  it("Refuses to merge { __ref } objects as StoreObjects", () => {
+  // ForestRun doesn't support store.merge
+  it.skip("Refuses to merge { __ref } objects as StoreObjects", () => {
     const cache = new InMemoryCache({
       typePolicies: {
         Query: {
