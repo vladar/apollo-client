@@ -113,22 +113,13 @@ export class StoreReader {
 
   public diffQueryAgainstStore(options: DiffQueryAgainstStoreOptions) {
     const store: any = options.store;
-    const result = store.__forestRun
+    const result: Cache.DiffResult<any> = store.__forestRun
       ? store.__forestRun.diff({ ...options, optimistic: true })
       : this.cache.diff({ ...options, optimistic: true });
 
     if (result.missing) {
-      // Copy from Apollo
-      const missing = [
-        new MissingFieldError(
-          firstMissing(result.missing)!,
-          result.missing,
-          options.query,
-          options.variables,
-        ),
-      ];
       if (options.returnPartialData === false) {
-        throw missing[0];
+        throw result.missing[0];
       }
     }
     return result;
