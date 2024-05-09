@@ -39,6 +39,7 @@ import { Cache } from "../../core";
 import { canonicalStringify } from "./object-canon";
 import { normalizeReadFieldOptions } from "./policies";
 import { ReadFieldFunction } from "../core/types/common";
+import { assignStoreCache } from "./__tests__/helpers";
 
 export interface WriteContext extends ReadMergeModifyContext {
   readonly written: {
@@ -123,18 +124,10 @@ export class StoreWriter {
       store.__forestRun = new InMemoryCache({
         ...this.cache.rawConfig,
         typePolicies: this.cache.rawConfig.typePolicies ?? store.policies,
-      });
-      store.toObject = () => {
-        const { __META, ...rest } = store.__forestRun.extract();
-        return rest;
-      };
-      store.lookup = (key) => {
-        return store.__forestRun.__lookup(key);
-      };
+      })
+      assignStoreCache(store, store.__forestRun);
     }
     return store.__forestRun.write(write);
-
-    // return this.cache.write(write);
   }
 }
 

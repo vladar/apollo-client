@@ -46,6 +46,7 @@ import { InMemoryCache } from "./inMemoryCache";
 import { MissingFieldError, MissingTree } from "../core/types/common";
 import { canonicalStringify, ObjectCanon } from "./object-canon";
 import { ForestRunCache } from "forest-run";
+import { assignStoreCache } from "./__tests__/helpers";
 
 export type VariableMap = { [name: string]: any };
 
@@ -113,9 +114,13 @@ export class StoreReader {
 
   public diffQueryAgainstStore(options: DiffQueryAgainstStoreOptions) {
     const store: any = options.store;
-    const result: Cache.DiffResult<any> = store.__forestRun
-      ? store.__forestRun.diff({ ...options, optimistic: true })
-      : this.cache.diff({ ...options, optimistic: true });
+
+    if (!store.__forestRun) {
+      store.__forestRun = this.cache;
+      assignStoreCache(store, this.cache);
+    }
+    const result: Cache.DiffResult<any> =
+      store.__forestRun.diff({ ...options, optimistic: true });
 
     if (result.missing) {
       if (options.returnPartialData === false) {

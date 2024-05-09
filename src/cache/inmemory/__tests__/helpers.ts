@@ -13,17 +13,50 @@ export function defaultNormalizedCacheFactory(
   seed?: NormalizedCacheObject,
 ): NormalizedCache {
   const cache = new InMemoryCache();
-  return new EntityStore.Root({
+  if (seed) {
+    cache.restore(seed);
+  }
+  const store = new EntityStore.Root({
     policies: cache.policies,
     resultCaching: true,
-    seed,
   });
+  assignStoreCache(store, cache);
+  (store as any).__seed = seed;
+  return store;
+}
+
+export function assignStoreCache(store: EntityStore, cache: InMemoryCache) {
+  if (store.__seed) {
+    cache.restore(store.__seed);
+  }
+  store.toObject = () => {
+    const { __META, ...rest } = cache.extract();
+    return rest;
+  };
+  store.lookup = (key) => {
+    return cache.__lookup(key);
+  };
+  store.modify = () => {
+    throw new Error("NOPE");
+  };
+  store.merge = () => {
+    throw new Error("NOPE");
+  };
+  store.delete = () => {
+    throw new Error("NOPE");
+  };
+  store.clear = () => {
+    throw new Error("NOPE");
+  };
+  store.replace = () => {
+    throw new Error("NOPE");
+  };
 }
 
 interface WriteQueryToStoreOptions extends Cache.WriteOptions {
   writer: StoreWriter;
   store?: NormalizedCache;
-};
+}
 
 export function readQueryFromStore<T = any>(
   reader: StoreReader,
