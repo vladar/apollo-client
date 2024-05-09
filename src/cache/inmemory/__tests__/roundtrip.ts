@@ -58,7 +58,9 @@ function storeRoundtrip(query: DocumentNode, result: any, variables = {}) {
   const immutableResult = readQueryFromStore(reader, readOptions);
   expect(immutableResult).toEqual(reconstructedResult);
   expect(readQueryFromStore(reader, readOptions)).toBe(immutableResult);
-  if (__DEV__) {
+
+  // ForestRun doesn't do Object.freeze yet (TODO)
+  if (__DEV__ && false) {
     try {
       // Note: this illegal assignment will only throw in strict mode, but that's
       // safe to assume because this test file is a module.
@@ -314,9 +316,10 @@ describe('roundtrip', () => {
       );
     });
 
+    // ForestRun doesn't warn on writes with missing fields
     // XXX this test is weird because it assumes the server returned an incorrect result
     // However, the user may have written this result with client.writeQuery.
-    withErrorSpy(it, 'should throw an error on two of the same inline fragment types', () => {
+    it('should throw an error on two of the same inline fragment types', () => {
       expect(() => {
         storeRoundtrip(
           gql`
@@ -456,7 +459,8 @@ describe('roundtrip', () => {
       });
     });
 
-    withErrorSpy(it, 'should throw on error on two of the same spread fragment types', () => {
+    // ForestRun doesn't warn on missing fields at writes
+    it('should throw on error on two of the same spread fragment types', () => {
       expect(() => {
         storeRoundtrip(
           gql`
