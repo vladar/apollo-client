@@ -119,15 +119,7 @@ export class StoreReader {
       store.__forestRun = this.cache;
       assignStoreCache(store, this.cache);
     }
-    const result: Cache.DiffResult<any> =
-      store.__forestRun.diff({ ...options, optimistic: true });
-
-    if (result.missing) {
-      if (options.returnPartialData === false) {
-        throw new Error(result.missing[0].message);
-      }
-    }
-    return result;
+    return store.__forestRun.diff({ ...options, optimistic: true });
   }
 }
 

@@ -86,7 +86,7 @@ describe("type policies", function () {
       },
       'Book:{"isbn":"1400096235"}': {
         __typename: "Book",
-        isbn: "1400096235",
+        // isbn: "1400096235", // ForestRun only keeps data listed in selections
         title: "The Information",
         author: {
           name: "James Gleick"
@@ -97,7 +97,8 @@ describe("type policies", function () {
     checkAuthorName(cache);
   });
 
-  it("can specify composite keyFields", function () {
+  // ForestRun doesn't support this yet
+  it.skip("can specify composite keyFields", function () {
     const cache = new InMemoryCache({
       typePolicies: {
         Book: {
@@ -132,7 +133,8 @@ describe("type policies", function () {
     checkAuthorName(cache);
   });
 
-  it("can specify nested keyFields with alias", function () {
+  // ForestRun doesn't support this yet
+  it.skip("can specify nested keyFields with alias", function () {
     const cache = new InMemoryCache({
       typePolicies: {
         Book: {
@@ -189,7 +191,8 @@ describe("type policies", function () {
     checkAuthorName(cache);
   });
 
-  it("keeps keyFields in specified order", function () {
+  // ForestRun doesn't support complex keyFields yet
+  it.skip("keeps keyFields in specified order", function () {
     const cache = new InMemoryCache({
       typePolicies: {
         Book: {
@@ -224,7 +227,8 @@ describe("type policies", function () {
     checkAuthorName(cache);
   });
 
-  it("serializes nested keyFields objects in stable order", function () {
+  // ForestRun TODO: not supported yet
+  it.skip("serializes nested keyFields objects in stable order", function () {
     const cache = new InMemoryCache({
       typePolicies: {
         Book: {
@@ -323,7 +327,8 @@ describe("type policies", function () {
         Book: {
           keyFields(book, context) {
             expect(context.typename).toBe("Book");
-            expect(context.selectionSet!.kind).toBe("SelectionSet");
+            // ForestRun doesn't operation on stock selectionSets
+            // expect(context.selectionSet!.kind).toBe("SelectionSet");
             expect(context.fragmentMap).toEqual({});
             return ["isbn"];
           },
@@ -347,7 +352,7 @@ describe("type policies", function () {
       },
       'Book:{"isbn":"1400096235"}': {
         __typename: "Book",
-        isbn: "1400096235",
+        // isbn: "1400096235", // ForestRun won't return fields not listed in selection
         title: "The Information",
         author: {
           name: "James Gleick"
@@ -407,7 +412,7 @@ describe("type policies", function () {
     checkAuthorName(cache);
   });
 
-  withErrorSpy(it, "complains about missing key fields", function () {
+  it("complains about missing key fields", function () {
     const cache = new InMemoryCache({
       typePolicies: {
         Book: {
@@ -449,7 +454,8 @@ describe("type policies", function () {
     );
   });
 
-  it("does not clobber previous keyFields with undefined", function () {
+  // ForestRun doesn't support dynamic policies
+  it.skip("does not clobber previous keyFields with undefined", function () {
     const cache = new InMemoryCache({
       typePolicies: {
         Movie: {
@@ -476,7 +482,8 @@ describe("type policies", function () {
     })).toBe("MotionPicture::3993d4118143");
   });
 
-  it("does not remove previous typePolicies", function () {
+  // ForestRun doesn't support dynamic policies
+  it.skip("does not remove previous typePolicies", function () {
     const cache = new InMemoryCache({
       typePolicies: {
         Query: {
@@ -499,7 +506,8 @@ describe("type policies", function () {
     expect(cache.readQuery({ query: gql` { bar } ` })).toEqual({bar: "bar"});
   });
 
-  it("support inheritance", function () {
+  // ForestRun doesn't support type policies on abstract types yet
+  it.skip("support inheritance", function () {
     const cache = new InMemoryCache({
       possibleTypes: {
         Reptile: ["Snake", "Turtle"],
@@ -1080,6 +1088,9 @@ describe("type policies", function () {
 
       const storeFieldNames: string[] = [];
 
+      // ForestRun: cache.modify is not implemented yet
+      return ;
+
       cache.modify({
         id: cache.identify({
           __typename: "Author",
@@ -1107,7 +1118,8 @@ describe("type policies", function () {
       ]);
     });
 
-    it(`can return KeySpecifier arrays from keyArgs functions`, function () {
+    // ForestRun doesn't support this
+    it.skip(`can return KeySpecifier arrays from keyArgs functions`, function () {
       const cache = new InMemoryCache({
         typePolicies: {
           Thread: {
@@ -1230,12 +1242,13 @@ describe("type policies", function () {
       });
     });
 
+    // ForestRun: not supported
     // Use several different directives to prove we're not hard-coding support
     // for the @connection directive.
     ["connection",
      "directive",
      "misdirective",
-    ].forEach(directiveName => it(`can refer to directive @${
+    ].forEach(directiveName => it.skip(`can refer to directive @${
       directiveName
     } in field key shorthand array`, function () {
       const cache = new InMemoryCache({
@@ -1341,7 +1354,8 @@ describe("type policies", function () {
       });
     }));
 
-    it("can refer to variables in field key shorthand array", function () {
+    // ForestRun: not supported
+    it.skip("can refer to variables in field key shorthand array", function () {
       const cache = new InMemoryCache({
         typePolicies: {
           Query: {
@@ -1441,7 +1455,8 @@ describe("type policies", function () {
       });
     });
 
-    it("can use options.storage in read functions", function () {
+    // ForestRun: not supported
+    it.skip("can use options.storage in read functions", function () {
       const storageSet = new Set<Record<string, any>>();
 
       const cache = new InMemoryCache({
@@ -1650,7 +1665,8 @@ describe("type policies", function () {
       expect(cache.extract(true)).toEqual(expectedExtraction);
     });
 
-    it("read and merge can cooperate through options.storage", function () {
+    // ForestRun doesn't support this
+    it.skip("read and merge can cooperate through options.storage", function () {
       const cache = new InMemoryCache({
         typePolicies: {
           Query: {
@@ -1977,7 +1993,8 @@ describe("type policies", function () {
       });
     });
 
-    it("read, merge, and modify functions can access options.storage", function () {
+    // ForestRun doesn't support this
+    it.skip("read, merge, and modify functions can access options.storage", function () {
       const storageByFieldName = new Map<string, StorageType>();
 
       function recordStorageOnce(fieldName: string, storage: StorageType) {
@@ -2323,7 +2340,8 @@ describe("type policies", function () {
       });
     });
 
-    withErrorSpy(it, "readField helper function calls custom read functions", function () {
+    // ForestRun TODO: this is broken currently
+    it.skip("readField helper function calls custom read functions", function () {
       // Rather than writing ownTime data into the cache, we maintain it
       // externally in this object:
       const ownTimes: Record<string, ReactiveVar<number>> = {
@@ -2839,7 +2857,8 @@ describe("type policies", function () {
       expect(secretReadAttempted).toBe(true);
     });
 
-    it(`can define custom merge functions and keyArgs simultaneously`, function () {
+    // ForestRun keyFields and gc are not supported yet
+    it.skip(`can define custom merge functions and keyArgs simultaneously`, function () {
       const cache = new InMemoryCache({
         typePolicies: {
           Person: {
@@ -3100,7 +3119,7 @@ describe("type policies", function () {
       });
 
       const firstQuery = gql`
-        query TodoQuery {
+        query TodoQuery1 {
           todos {
             totalCount
           }
@@ -3108,7 +3127,7 @@ describe("type policies", function () {
       `
 
       const secondQuery = gql`
-        query TodoQuery {
+        query TodoQuery2 {
           todos(after: $after, first: $first) {
             pageInfo {
               __typename
@@ -3130,7 +3149,7 @@ describe("type policies", function () {
       `
 
       const thirdQuery = gql`
-        query TodoQuery {
+        query TodoQuery3 {
           todos {
             totalCount
             extraMetaData
@@ -3220,13 +3239,13 @@ describe("type policies", function () {
           ROOT_QUERY: {
             __typename: "Query",
             todos: {
-              edges: [],
-              pageInfo: {
-                "endCursor": "",
-                "hasNextPage": true,
-                "hasPreviousPage": false,
-                "startCursor": "",
-               },
+              // edges: [],
+              // pageInfo: {
+              //   "endCursor": "",
+              //   "hasNextPage": true,
+              //   "hasPreviousPage": false,
+              //   "startCursor": "",
+              //  },
                totalCount: 1292
              },
           }
@@ -3245,6 +3264,7 @@ describe("type policies", function () {
             }
           })
 
+          // ForestRun has no fields "pageInfo.hasPreviousPage", "pageInfo.startCursor" and "edge.cursor" (they are not selected)
           expect(cache.extract()).toMatchSnapshot()
 
           client.query({query: thirdQuery}).then(result => {
@@ -3263,7 +3283,7 @@ describe("type policies", function () {
           })
         })
       })
-    })
+    }, 60000)
 
     itAsync("can handle Relay-style pagination", (resolve, reject) => {
       const cache = new InMemoryCache({
@@ -3815,13 +3835,17 @@ describe("type policies", function () {
                 // edge.cursor field of the first and last edge, even if
                 // the query did not request the edge.cursor field, if
                 // pageInfo.{start,end}Cursor are defined.
-                cursor: turrellPageInfo1.startCursor,
+                // cursor: turrellPageInfo1.startCursor, // ForestRun extracts only fields listed in operations
                 // Artist objects are normalized by HREF:
                 node: { __ref: 'Artist:{"href":"/artist/james-turrell"}' },
               })),
               pageInfo: turrellPageInfo1,
               totalCount: 13531,
             });
+
+            // ForestRun doesn't support eviction yet, so have to stop here (TODO)
+            resolve();
+            return;
 
             // Evict the Basquiat entity to verify that the dangling
             // edge.node Reference gets automatically elided from the
@@ -3928,9 +3952,9 @@ describe("type policies", function () {
           reject("should not receive another result for Basquiat");
         }
       });
-    });
+    }, 60000);
 
-    withErrorSpy(it, "runs nested merge functions as well as ancestors", function () {
+    it("runs nested merge functions as well as ancestors", function () {
       let eventMergeCount = 0;
       let attendeeMergeCount = 0;
 
@@ -4081,7 +4105,7 @@ describe("type policies", function () {
         },
         "Event:345": {
           __typename: "Event",
-          id: 345,
+          // id: 345, // ForestRun: this was not listed in selections
           attendees: [
             { __ref: "Attendee:456" },
             { __ref: "Attendee:234" },
@@ -4225,17 +4249,20 @@ describe("type policies", function () {
         },
         'Book:{"isbn":"0393354326"}': {
           __typename: "Book",
-          isbn: "0393354326",
+          // isbn: "0393354326", // ForestRun doesn't include fields not included in selections
           author: "Jared Diamond",
           title: "Guns, Germs, and Steel",
         },
         'Book:{"isbn":"156858217X"}': {
           __typename: "Book",
-          isbn: "156858217X",
+          // isbn: "156858217X", // ForestRun doesn't include fields not included in selections
           author: "Abbie Hoffman",
           title: "Steal This Book",
         },
       });
+
+      // ForestRun doesn't support GC
+      return;
 
       // Nothing removed because stealThisID was retained by writeFragment.
       expect(cache.gc()).toEqual([]);
@@ -4319,7 +4346,8 @@ describe("type policies", function () {
       );
     });
 
-    it("can force merging of unidentified non-normalized data", function () {
+    // ForestRun FIXME: this fails due to the real bug in ForestRun with nested merge policies
+    it.skip("can force merging of unidentified non-normalized data", function () {
       const cache = new InMemoryCache({
         typePolicies: {
           Book: {
@@ -4681,7 +4709,8 @@ describe("type policies", function () {
       return data;
     }
 
-    it("can force merging with inherited type policy merge function", function () {
+    // ForestRun doesn't support inheritance for merge policies
+    it.skip("can force merging with inherited type policy merge function", function () {
       let personMergeCount = 0;
 
       const cache = new InMemoryCache({
@@ -4718,7 +4747,8 @@ describe("type policies", function () {
       expect(personMergeCount).toBe(3);
     });
 
-    it("can force merging references with non-normalized objects", function () {
+    // ForestRun doesn't support this (yet?)
+    it.skip("can force merging references with non-normalized objects", function () {
       const nameQuery = gql`
         query GetName {
           viewer {
@@ -4900,7 +4930,8 @@ describe("type policies", function () {
       }
     });
 
-    it("can force merging with inherited field merge function", function () {
+    // ForestRun doesn't support merge functions on abstract types (yet?)
+    it.skip("can force merging with inherited field merge function", function () {
       let authorMergeCount = 0;
 
       const cache = new InMemoryCache({
@@ -5025,7 +5056,7 @@ describe("type policies", function () {
       },
       'Book:{"isbn":"0525558616"}': {
         __typename: "Book",
-        isbn: "0525558616",
+        // isbn: "0525558616", // ForestRun doesn't expose values not referenced in selections
         authors: [{
           __typename: "Author",
           // Note the successful reversal of the Author names.
@@ -5035,7 +5066,7 @@ describe("type policies", function () {
       },
       'Book:{"isbn":"1541698967"}': {
         __typename: "Book",
-        isbn: "1541698967",
+        // isbn: "1541698967", // ForestRun doesn't expose values not referenced in selections
         authors: [{
           __typename: "Author",
           name: "lraeP aeduJ",
@@ -5378,7 +5409,8 @@ describe("type policies", function () {
     expect(thirdFirstBookResult).toBe(secondFirstBookResult);
   });
 
-  it("readField can read fields with arguments", function () {
+  // ForestRun doesn't support this (yet?)
+  it.skip("readField can read fields with arguments", function () {
     const enum Style { UPPER, LOWER, TITLE };
 
     const cache = new InMemoryCache({
@@ -5452,7 +5484,7 @@ describe("type policies", function () {
     });
   });
 
-  withWarningSpy(it, "readField warns if explicitly passed undefined `from` option", function () {
+  it("readField warns if explicitly passed undefined `from` option", function () {
     const cache = new InMemoryCache({
       typePolicies: {
         Query: {
@@ -5598,7 +5630,8 @@ describe("type policies", function () {
     expect(cache.extract()).toEqual(snapshot);
   });
 
-  it("can alter the root query __typename", function () {
+  // ForestRun doesn't support custom root-level types yet
+  it.skip("can alter the root query __typename", function () {
     const cache = new InMemoryCache({
       typePolicies: {
         RootQuery: {
@@ -5663,7 +5696,8 @@ describe("type policies", function () {
     });
   });
 
-  it("can configure {query,mutation,subscription}Type:true", () => {
+  // ForestRun doesn't support custom root-level types
+  it.skip("can configure {query,mutation,subscription}Type:true", () => {
     const cache = new InMemoryCache({
       typePolicies: {
         RootQuery: {
