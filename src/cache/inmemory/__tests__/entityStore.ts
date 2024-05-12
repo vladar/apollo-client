@@ -1803,12 +1803,12 @@ describe('EntityStore', () => {
       consoleWarnSpy.mockImplementation(() => {});
       try {
         expect(cache.identify(ABCs)).toBeUndefined();
-        // expect(consoleWarnSpy).toHaveBeenCalledTimes(1);
-        // expect(consoleWarnSpy).toHaveBeenCalledWith(
-        //   new Error(`Missing field 'b' while extracting keyFields from ${
-        //     JSON.stringify(ABCs)
-        //   }`),
-        // );
+        expect(consoleWarnSpy).toHaveBeenCalledTimes(1);
+        expect(consoleWarnSpy).toHaveBeenCalledWith(
+          new Error(`Missing field 'b' while extracting keyFields from ${
+            JSON.stringify(ABCs)
+          }`),
+        );
       } finally {
         consoleWarnSpy.mockRestore();
       }
