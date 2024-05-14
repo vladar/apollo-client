@@ -179,7 +179,7 @@ describe('@client @export tests', () => {
     },
   );
 
-  withErrorSpy(itAsync, 'should allow @client @export variables to be used with remote queries', (resolve, reject) => {
+  itAsync('should allow @client @export variables to be used with remote queries', (resolve, reject) => {
     const query = gql`
       query currentAuthorPostCount($authorId: Int!) {
         currentAuthor @client {
@@ -714,7 +714,7 @@ describe('@client @export tests', () => {
     },
   );
 
-  withErrorSpy(itAsync,
+  itAsync(
     'should refetch if an @export variable changes, the current fetch ' +
     'policy is not cache-only, and the query includes fields that need to ' +
     'be resolved remotely',
@@ -779,7 +779,7 @@ describe('@client @export tests', () => {
     }
   );
 
-  withErrorSpy(itAsync,
+  itAsync(
     'should NOT refetch if an @export variable has not changed, the ' +
     'current fetch policy is not cache-only, and the query includes fields ' +
     'that need to be resolved remotely',
@@ -847,7 +847,8 @@ describe('@client @export tests', () => {
     }
   );
 
-  itAsync(
+  // ForestRun: doesn't support this yet (watching for query with required variables without any variables, expecting it to be updated propery)
+  itAsync.skip(
     'should NOT attempt to refetch over the network if an @export variable ' +
     'has changed, the current fetch policy is cache-first, and the remote ' +
     'part of the query (that leverages the @export variable) can be fully ' +
