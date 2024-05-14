@@ -104,7 +104,7 @@ export function relayStylePagination<TNode = Reference>(
       const edges: TRelayEdge<TNode>[] = [];
       let firstEdgeCursor = "";
       let lastEdgeCursor = "";
-      existing.edges.forEach(edge => {
+      existing?.edges?.forEach(edge => {
         // Edges themselves could be Reference objects, so it's important
         // to use readField to access the edge.edge.node property.
         if (canRead(readField("node", edge))) {
@@ -188,7 +188,7 @@ export function relayStylePagination<TNode = Reference>(
         }
       }
 
-      let prefix = existing.edges;
+      let prefix = existing.edges ?? [];
       let suffix: typeof prefix = [];
 
       if (args && args.after) {
