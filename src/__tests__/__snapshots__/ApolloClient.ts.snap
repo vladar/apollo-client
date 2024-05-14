@@ -238,6 +238,7 @@ Object {
   "bar": Object {
     "__typename": "Bar",
     "i": 7,
+    "id": "bar",
   },
   "foo": Object {
     "__typename": "Foo",
@@ -259,6 +260,7 @@ Object {
   "bar": Object {
     "__typename": "Bar",
     "i": 7,
+    "id": "bar",
     "j": 8,
     "k": 9,
   },
@@ -285,6 +287,7 @@ Object {
   "bar": Object {
     "__typename": "Bar",
     "i": 10,
+    "id": "bar",
     "j": 8,
     "k": 9,
   },
@@ -311,6 +314,7 @@ Object {
   "bar": Object {
     "__typename": "Bar",
     "i": 10,
+    "id": "bar",
     "j": 11,
     "k": 12,
   },
@@ -337,6 +341,7 @@ Object {
   "bar": Object {
     "__typename": "Bar",
     "i": 7,
+    "id": "bar",
     "j": 8,
     "k": 9,
   },
@@ -363,6 +368,7 @@ Object {
   "bar": Object {
     "__typename": "Bar",
     "i": 10,
+    "id": "bar",
     "j": 11,
     "k": 12,
   },
@@ -418,6 +424,7 @@ Object {
     "a": 1,
     "d": Object {
       "__typename": "D",
+      "e": 4,
       "h": Object {
         "__typename": "H",
         "i": 7,
