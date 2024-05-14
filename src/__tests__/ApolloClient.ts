@@ -801,7 +801,7 @@ describe('ApolloClient', () => {
       });
     });
 
-    withErrorSpy(it, 'should warn when the data provided does not match the query shape', () => {
+    it('should warn when the data provided does not match the query shape', () => {
       const client = new ApolloClient({
         link: ApolloLink.empty(),
         cache: new InMemoryCache({
@@ -1084,7 +1084,7 @@ describe('ApolloClient', () => {
       });
     });
 
-    withErrorSpy(it, 'should warn when the data provided does not match the fragment shape', () => {
+    it('should warn when the data provided does not match the fragment shape', () => {
       const client = new ApolloClient({
         link: ApolloLink.empty(),
         cache: new InMemoryCache({
@@ -2275,7 +2275,7 @@ describe('ApolloClient', () => {
         `,
       });
 
-      expect((client.cache as any).data.data).toEqual({
+      expect((client.cache as any).extract()).toEqual({
         ROOT_QUERY: {
           __typename: "Query",
           a: 1,
@@ -2283,7 +2283,7 @@ describe('ApolloClient', () => {
       });
 
       await client.clearStore();
-      expect((client.cache as any).data.data).toEqual({});
+      expect((client.cache as any).extract()).toEqual({});
     });
   });
 
