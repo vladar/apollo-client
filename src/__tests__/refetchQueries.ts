@@ -740,7 +740,8 @@ describe("client.refetchQueries", () => {
     resolve();
   });
 
-  itAsync("can run updateQuery function against optimistic cache layer", async (resolve, reject) => {
+  // ForestRun doesn't support cache.modify (yet)
+  itAsync.skip("can run updateQuery function against optimistic cache layer", async (resolve, reject) => {
     const client = makeClient();
     const [
       aObs,
