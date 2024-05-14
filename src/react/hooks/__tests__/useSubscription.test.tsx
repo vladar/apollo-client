@@ -424,10 +424,11 @@ describe('useSubscription Hook', () => {
     await expect(waitForNextUpdate({ timeout: 20 }))
       .rejects.toThrow('Timed out');
 
-    expect(errorSpy).toHaveBeenCalledTimes(1);
-    expect(errorSpy.mock.calls[0][0]).toBe(
-      "Missing field 'car' while writing result {}",
-    );
+    // ForestRun doesn't support this
+    // expect(errorSpy).toHaveBeenCalledTimes(1);
+    // expect(errorSpy.mock.calls[0][0]).toBe(
+    //   "Missing field 'car' while writing result {}",
+    // );
     errorSpy.mockRestore();
   });
 
@@ -492,16 +493,17 @@ describe('useSubscription Hook', () => {
     await expect(waitForNextUpdate({ timeout: 20 }))
       .rejects.toThrow('Timed out');
 
-    expect(errorSpy).toHaveBeenCalledTimes(3);
-    expect(errorSpy.mock.calls[0][0]).toBe(
-      "Missing field 'car' while writing result {}",
-    );
-    expect(errorSpy.mock.calls[1][0]).toBe(
-      "Missing field 'car' while writing result {}",
-    );
-    expect(errorSpy.mock.calls[2][0]).toBe(
-      "Missing field 'car' while writing result {}",
-    );
+    // ForestRun doesn't support this
+    // expect(errorSpy).toHaveBeenCalledTimes(3);
+    // expect(errorSpy.mock.calls[0][0]).toBe(
+    //   "Missing field 'car' while writing result {}",
+    // );
+    // expect(errorSpy.mock.calls[1][0]).toBe(
+    //   "Missing field 'car' while writing result {}",
+    // );
+    // expect(errorSpy.mock.calls[2][0]).toBe(
+    //   "Missing field 'car' while writing result {}",
+    // );
     errorSpy.mockRestore();
   });
 });
