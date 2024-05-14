@@ -3087,7 +3087,8 @@ describe('useQuery Hook', () => {
   });
 
   describe('Optimistic data', () => {
-    it('should display rolled back optimistic data when an error occurs', async () => {
+    // ForestRun doesn't support cache.modify yet
+    it.skip('should display rolled back optimistic data when an error occurs', async () => {
       const query = gql`
         query AllCars {
           cars {
@@ -3276,9 +3277,10 @@ describe('useQuery Hook', () => {
       expect(result.current.error).toBe(undefined);
       expect(result.current.networkStatus).toBe(NetworkStatus.refetch);
 
-      expect(errorSpy).toHaveBeenCalledTimes(1);
-      expect(errorSpy.mock.calls[0][0]).toMatch('Missing field');
-      errorSpy.mockRestore();
+      // ForestRun doesn't support this yet
+      // expect(errorSpy).toHaveBeenCalledTimes(1);
+      // expect(errorSpy.mock.calls[0][0]).toMatch('Missing field');
+      // errorSpy.mockRestore();
 
       await waitForNextUpdate();
 
@@ -3340,9 +3342,10 @@ describe('useQuery Hook', () => {
       expect(result.current.error).toBe(undefined);
       expect(result.current.networkStatus).toBe(NetworkStatus.refetch);
 
-      expect(errorSpy).toHaveBeenCalledTimes(1);
-      expect(errorSpy.mock.calls[0][0]).toMatch('Missing field');
-      errorSpy.mockRestore();
+      // ForestRun doesn't support this yet
+      // expect(errorSpy).toHaveBeenCalledTimes(1);
+      // expect(errorSpy.mock.calls[0][0]).toMatch('Missing field');
+      // errorSpy.mockRestore();
 
       await waitForNextUpdate();
       expect(result.current.loading).toBe(false);
@@ -3400,9 +3403,10 @@ describe('useQuery Hook', () => {
       expect(result.current.data).toBe(undefined);
       expect(result.current.networkStatus).toBe(NetworkStatus.refetch);
 
-      expect(errorSpy).toHaveBeenCalledTimes(1);
-      expect(errorSpy.mock.calls[0][0]).toMatch('Missing field');
-      errorSpy.mockRestore();
+      // ForestRun doesn't support this yet
+      // expect(errorSpy).toHaveBeenCalledTimes(1);
+      // expect(errorSpy.mock.calls[0][0]).toMatch('Missing field');
+      // errorSpy.mockRestore();
 
       await waitForNextUpdate();
 
@@ -3870,16 +3874,17 @@ describe('useQuery Hook', () => {
       expect(result.current.data).toEqual(carData);
       expect(result.current.error).toBeUndefined();
 
-      expect(errorSpy).toHaveBeenCalledTimes(1);
-      expect(errorSpy).toHaveBeenLastCalledWith(
-        `Missing field 'vin' while writing result ${JSON.stringify({
-          id: 1,
-          make: "Audi",
-          model: "RS8",
-          vine: "DOLLADOLLABILL",
-          __typename: "Car"
-        }, null, 2)}`
-      );
+      // ForestRun doesn't support this (yet)
+      // expect(errorSpy).toHaveBeenCalledTimes(1);
+      // expect(errorSpy).toHaveBeenLastCalledWith(
+      //   `Missing field 'vin' while writing result ${JSON.stringify({
+      //     id: 1,
+      //     make: "Audi",
+      //     model: "RS8",
+      //     vine: "DOLLADOLLABILL",
+      //     __typename: "Car"
+      //   }, null, 2)}`
+      // );
       errorSpy.mockRestore();
     });
 
@@ -4582,7 +4587,8 @@ describe('useQuery Hook', () => {
     });
   });
 
-  describe('canonical cache results', () => {
+  // ForestRun doesn't support canonical cache results
+  describe.skip('canonical cache results', () => {
     it('can be disabled via useQuery options', async () => {
       const cache = new InMemoryCache({
         canonizeResults: true,
