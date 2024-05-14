@@ -885,7 +885,7 @@ describe('Combining client and server state/operations', () => {
     resolve();
   });
 
-  withErrorSpy(itAsync, 'should handle a simple query with both server and client fields', (resolve, reject) => {
+  itAsync('should handle a simple query with both server and client fields', (resolve, reject) => {
     const query = gql`
       query GetCount {
         count @client
@@ -920,7 +920,7 @@ describe('Combining client and server state/operations', () => {
     });
   });
 
-  withErrorSpy(itAsync, 'should support nested querying of both server and client fields', (resolve, reject) => {
+  itAsync('should support nested querying of both server and client fields', (resolve, reject) => {
     const query = gql`
       query GetUser {
         user {

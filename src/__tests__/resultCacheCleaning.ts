@@ -4,7 +4,8 @@ import { ApolloClient, Resolvers, gql } from "../core";
 import { InMemoryCache, NormalizedCacheObject } from "../cache";
 import { SchemaLink } from "../link/schema";
 
-describe("resultCache cleaning", () => {
+// ForestRun has no resultCache
+describe.skip("resultCache cleaning", () => {
   const fragments = gql`
     fragment user on User {
       id
