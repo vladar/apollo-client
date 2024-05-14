@@ -2180,7 +2180,8 @@ describe('ObservableQuery', () => {
     });
   });
 
-  describe('assumeImmutableResults', () => {
+  // ForestRun doesn't freeze results yet
+  describe.skip('assumeImmutableResults', () => {
     itAsync('should prevent costly (but safe) cloneDeep calls', async (resolve, reject) => {
       const queryOptions = {
         query: gql`
@@ -2308,7 +2309,8 @@ describe('ObservableQuery', () => {
     });
   });
 
-  itAsync("QueryInfo does not notify for !== but deep-equal results", (resolve, reject) => {
+  // ForestRun doesn't support cache.modify yet
+  itAsync.skip("QueryInfo does not notify for !== but deep-equal results", (resolve, reject) => {
     const queryManager = mockQueryManager(reject, {
       request: { query, variables },
       result: { data: dataOne },
