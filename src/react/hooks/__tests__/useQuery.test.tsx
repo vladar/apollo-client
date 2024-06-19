@@ -4446,10 +4446,10 @@ describe('useQuery Hook', () => {
           new Promise(resolve => setTimeout(resolve, 300)).then(() => {
             observer.next({
               data: {
-                people: gender === "all" ? peopleData :
+                people: (gender === "all" ? peopleData :
                   gender ? peopleData.filter(
                     person => person.gender === gender
-                  ) : peopleData,
+                  ) : peopleData).map(({gender, ...person}) => person), // ForestRun: result should conform to query
               }
             });
             observer.complete();
