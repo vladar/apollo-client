@@ -4181,7 +4181,7 @@ describe("type policies", function () {
       expect(read()).toBe(null);
 
       cache.writeQuery({
-        query,
+        query: gql`{ book(isbn: $isbn) { __typename, isbn, title, author } }`, // ForestRun: written data MUST match selectionSet
         variables: { isbn: "0393354326" },
         data: {
           book: {
@@ -4214,6 +4214,7 @@ describe("type policies", function () {
           fragment BookTitleAuthor on Book {
             title
             author
+            isbn # ForestRun: written data must match selections
           }
         `,
         data: stealThisData,
@@ -4249,13 +4250,13 @@ describe("type policies", function () {
         },
         'Book:{"isbn":"0393354326"}': {
           __typename: "Book",
-          // isbn: "0393354326", // ForestRun doesn't include fields not included in selections
+          isbn: "0393354326",
           author: "Jared Diamond",
           title: "Guns, Germs, and Steel",
         },
         'Book:{"isbn":"156858217X"}': {
           __typename: "Book",
-          // isbn: "156858217X", // ForestRun doesn't include fields not included in selections
+          isbn: "156858217X",
           author: "Abbie Hoffman",
           title: "Steal This Book",
         },
