@@ -906,7 +906,7 @@ describe('Combining client and server state/operations', () => {
     });
 
     cache.writeQuery({
-      query,
+      query: gql`{ count }`, // ForestRun: manual write MUST have all fields from selection
       data: {
         count: 0,
       },
@@ -955,7 +955,7 @@ describe('Combining client and server state/operations', () => {
     });
 
     cache.writeQuery({
-      query,
+      query: gql`{ user { firstName } }`, // ForestRun: manual write MUST have all fields from selection
       data: {
         user: {
           __typename: 'User',

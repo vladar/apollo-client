@@ -178,7 +178,7 @@ describe('Basic resolver capabilities', () => {
       resolvers,
       query,
       serverQuery,
-      serverResult: { data: { bar: { baz: true, __typename: 'Bar' } } },
+      serverResult: { data: { bar: { baz: true /*, __typename: 'Bar' */ } } }, // ForestRun: serverResult must match selection
       observer: {
         next({ data }) {
           try {
@@ -221,7 +221,7 @@ describe('Basic resolver capabilities', () => {
       observer: {
         next({ data }) {
           try {
-            expect(data).toEqual({ foo: { bar: 1 } });
+            expect(data).toEqual({ foo: { __typename: "Foo", bar: 1 } }); // ForestRun: actual data written to store contains __typename
           } catch (error) {
             reject(error);
           }
@@ -257,7 +257,7 @@ describe('Basic resolver capabilities', () => {
       observer: {
         next({ data }) {
           try {
-            expect(data).toEqual({ foo: { bar: 1 } });
+            expect(data).toEqual({ foo: { __typename: "Foo", bar: 1 } }); // ForestRun: actual data written to store contains __typename
           } catch (error) {
             reject(error);
           }
@@ -320,10 +320,13 @@ describe('Basic resolver capabilities', () => {
         observer: {
           next({ data }) {
             try {
+              // ForestRun: actual data written to store contains __typename
               expect(data).toEqual({
                 author: {
+                  __typename: 'Author',
                   name: 'John Smith',
                   stats: {
+                    __typename: 'Stats',
                     totalPosts: 100,
                     postsToday: 10,
                   },
