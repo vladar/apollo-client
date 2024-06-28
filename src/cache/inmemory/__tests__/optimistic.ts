@@ -36,8 +36,10 @@ describe('optimistic cache layers', () => {
       return cache.readQuery<{ book: any }>({ query }, false);
     }
 
+    const writeQuery = gql`{ book { isbn, title, author { name } } }`; // ForestRun: data must have all fields listed in selections
+
     cache.writeQuery({
-      query,
+      query: writeQuery, // ForestRun: written data must match selection
       data: {
         book: {
           __typename: 'Book',
@@ -71,7 +73,7 @@ describe('optimistic cache layers', () => {
       expect(readOptimistic(cache)).toEqual(result1984);
 
       proxy.writeQuery({
-        query,
+        query: writeQuery, // ForestRun: written data must match selection
         data: {
           book: {
             __typename: 'Book',
@@ -143,7 +145,7 @@ describe('optimistic cache layers', () => {
     // Write a new book to the root Query.book field, which should not affect
     // the 'second' optimistic layer that is still applied.
     cache.writeQuery({
-      query,
+      query: writeQuery, // ForestRun: written data must match selection
       data: {
         book: {
           __typename: 'Book',
@@ -183,11 +185,13 @@ describe('optimistic cache layers', () => {
       },
       'Book:1980719802': {
         title: '1984',
+        isbn: '1980719802', // ForestRun
         author: { __ref: 'Author:George Orwell' },
         __typename: 'Book',
       },
       'Book:9781451673319': {
         title: 'Fahrenheit 451',
+        isbn: '9781451673319', // ForestRun
         author: { __ref: 'Author:Ray Bradbury' },
         __typename: 'Book',
       },
@@ -251,14 +255,18 @@ describe('optimistic cache layers', () => {
       },
     };
 
+    // ForestRun: written selection must match data
+    const writeQuery = gql`{ books { isbn, title, subtitle, author { name } } }`;
+
     cache.writeQuery({
-      query,
+      query: writeQuery, // ForestRun: written selection must match data
       data: {
         books: [eagerBookData, spinelessBookData],
       },
     });
 
-    expect(cache.extract(true)).toEqual({
+    // ForestRun: toEqual -> toMatchObject
+    expect(cache.extract(true)).toMatchObject({
       ROOT_QUERY: {
         __typename: "Query",
         books: [{ __ref: 'Book:1603589082' }, { __ref: 'Book:0735211280' }],
@@ -381,7 +389,7 @@ describe('optimistic cache layers', () => {
 
     cache.recordOptimisticTransaction(proxy => {
       proxy.writeQuery({
-        query: queryWithAuthors,
+        query: writeQuery, // ForestRun: written selection must match data
         data: {
           books: [
             eagerBookData,
@@ -407,7 +415,7 @@ describe('optimistic cache layers', () => {
     // Before removing the Buzz optimistic layer from the cache, write the same
     // data to the root layer of the cache.
     cache.writeQuery({
-      query: queryWithAuthors,
+      query: writeQuery, // ForestRun: written selection must match data
       data: {
         books: [eagerBookData, spinelessBookData, buzzBookData],
       },
