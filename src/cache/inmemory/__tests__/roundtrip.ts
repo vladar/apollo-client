@@ -316,10 +316,10 @@ describe('roundtrip', () => {
       );
     });
 
-    // ForestRun doesn't warn on writes with missing fields
+    // ForestRun: expects written data to match selections
     // XXX this test is weird because it assumes the server returned an incorrect result
     // However, the user may have written this result with client.writeQuery.
-    it('should throw an error on two of the same inline fragment types', () => {
+    it.skip('should throw an error on two of the same inline fragment types', () => {
       expect(() => {
         storeRoundtrip(
           gql`
@@ -459,8 +459,8 @@ describe('roundtrip', () => {
       });
     });
 
-    // ForestRun doesn't warn on missing fields at writes
-    it('should throw on error on two of the same spread fragment types', () => {
+    // ForestRun: expects written data to match selections
+    it.skip('should throw on error on two of the same spread fragment types', () => {
       expect(() => {
         storeRoundtrip(
           gql`
