@@ -760,7 +760,9 @@ describe('Resolving field aliases', () => {
     });
 
     client.query({ query: aliasedQuery }).then(({ data }) => {
-      expect(data).toEqual({
+      // ForestRun: toEqual -> toMatchObject
+      //   (ForestRun re-uses the original object from execution which has { fum: true, bar: true })
+      expect(data).toMatchObject({
         fie: { fum: true, __typename: 'Foo' },
         baz: { foo: true, __typename: 'Baz' },
       });

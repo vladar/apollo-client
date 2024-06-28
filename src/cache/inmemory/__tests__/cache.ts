@@ -589,12 +589,13 @@ describe('Cache', () => {
 
       const firstNameQuery = gql`{ firstName }`;
       const lastNameQuery = gql`{ lastName }`;
+      const dataQuery = gql`{ id, firstName, lastName }`;
 
       const id = cache.identify(bothNamesData);
 
       cache.writeQuery({
         id,
-        query: firstNameQuery,
+        query: dataQuery, // ForestRun: data must match selections
         data: bothNamesData,
       });
 
@@ -608,6 +609,7 @@ describe('Cache', () => {
           __typename: "Person",
           id: 123,
           firstName: "Ben",
+          lastName: "Newman", // ForestRun
         },
       });
 
@@ -623,7 +625,7 @@ describe('Cache', () => {
 
       cache.writeQuery({
         id,
-        query: lastNameQuery,
+        query: dataQuery, // ForestRun
         data: bothNamesData,
       });
 
@@ -656,7 +658,7 @@ describe('Cache', () => {
 
       cache.writeQuery({
         id,
-        query: firstNameQuery,
+        query: dataQuery, // ForestRun
         data: {
           ...bothNamesData,
           firstName: "Benjamin",
