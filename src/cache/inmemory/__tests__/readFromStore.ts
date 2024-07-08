@@ -930,8 +930,7 @@ describe('reading from the store', () => {
     });
   });
 
-  // ForestRun doesn't support @connection directive yet
-  it.skip('properly handles the @connection directive', () => {
+  it('properly handles the @connection directive', () => {
     const store = defaultNormalizedCacheFactory({
       ROOT_QUERY: {
         'books:abc': [
@@ -962,8 +961,7 @@ describe('reading from the store', () => {
     });
   });
 
-  // ForestRun doesn't support connection key returned from keyArgs yet
-  it.skip('can use keyArgs function instead of @connection directive', () => {
+  it('can use keyArgs function instead of @connection directive', () => {
     const reader = new StoreReader({
       cache: new InMemoryCache({
         typePolicies: {

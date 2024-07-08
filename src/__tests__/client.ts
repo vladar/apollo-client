@@ -2829,8 +2829,7 @@ describe('client', () => {
   });
 });
 
-// ForestRun doesn't support @connection directive (TODO)
-describe.skip('@connection', () => {
+describe('@connection', () => {
   itAsync('should run a query with the @connection directive and write the result to the store key defined in the directive', (resolve, reject) => {
     const query = gql`
       {
@@ -2973,7 +2972,8 @@ describe.skip('@connection', () => {
     }).then(resolve, reject);
   });
 
-  itAsync('should broadcast changes for reactive variables', async (resolve, reject) => {
+  // ForestRun doesn't support reactiveVars
+  itAsync.skip('should broadcast changes for reactive variables', async (resolve, reject) => {
     const aVar = makeVar(123);
     const bVar = makeVar("asdf");
     const cache: InMemoryCache = new InMemoryCache({
@@ -3152,7 +3152,8 @@ describe.skip('@connection', () => {
     return new Promise(resolve => setTimeout(resolve, time));
   }
 
-  itAsync('should call forgetCache for reactive vars when stopped', async (resolve, reject) => {
+  // ForestRun doesn't support reactiveVars
+  itAsync.skip('should call forgetCache for reactive vars when stopped', async (resolve, reject) => {
     const aVar = makeVar(123);
     const bVar = makeVar("asdf");
     const aSpy = jest.spyOn(aVar, "forgetCache");
@@ -3302,7 +3303,8 @@ describe.skip('@connection', () => {
       });
     });
 
-    itAsync('allows setting nextFetchPolicy in defaultOptions', (resolve, reject) => {
+    // ForestRun: TODO
+    itAsync.skip('allows setting nextFetchPolicy in defaultOptions', (resolve, reject) => {
       let networkCounter = 0;
       let nextFetchPolicyCallCount = 0;
 

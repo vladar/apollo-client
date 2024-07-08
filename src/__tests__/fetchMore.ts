@@ -1484,8 +1484,7 @@ describe('fetchMore on an observable query', () => {
   });
 });
 
-// ForestRun doesn't support @connection directive (yet)
-describe.skip('fetchMore on an observable query with connection', () => {
+describe('fetchMore on an observable query with connection', () => {
   type TEntryComments = {
     entry: {
       comments: Array<{

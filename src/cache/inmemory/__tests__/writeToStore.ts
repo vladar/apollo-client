@@ -2076,8 +2076,7 @@ describe('writing to the store', () => {
     });
   });
 
-  // ForestRun doesn't support @connection directive yet
-  it.skip('properly handles the @connection directive', () => {
+  it('properly handles the @connection directive', () => {
     const store = defaultNormalizedCacheFactory();
 
     writeQueryToStore({
@@ -2130,8 +2129,7 @@ describe('writing to the store', () => {
     });
   });
 
-  // ForestRun doesn't support keyArgs as strings yet
-  it.skip('can use keyArgs function instead of @connection directive', () => {
+  it('can use keyArgs function instead of @connection directive', () => {
     const store = defaultNormalizedCacheFactory();
     const writer = new StoreWriter(
       new InMemoryCache({
