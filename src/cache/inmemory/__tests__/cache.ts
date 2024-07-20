@@ -2692,9 +2692,10 @@ describe("InMemoryCache#modify", () => {
     expect(snapshotWithoutBook).toEqual({
       ROOT_QUERY: {
         __typename: "Query",
-        currentlyReading: {
-          __ref: 'Book:{"isbn":"147670032X"}',
-        },
+        // ForestRun: removes all refs of evicted nodes
+        // currentlyReading: {
+        //   __ref: 'Book:{"isbn":"147670032X"}',
+        // },
       },
       'Author:{"name":"Ezra Klein"}': {
         __typename: "Author",
@@ -2717,9 +2718,10 @@ describe("InMemoryCache#modify", () => {
     expect(snapshotWithoutAuthor).toEqual({
       ROOT_QUERY: {
         __typename: "Query",
-        currentlyReading: {
-          __ref: 'Book:{"isbn":"147670032X"}',
-        },
+        // ForestRun: removes all refs of evicted nodes
+        // currentlyReading: {
+        //   __ref: 'Book:{"isbn":"147670032X"}',
+        // },
       },
     });
 

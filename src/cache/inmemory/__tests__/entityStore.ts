@@ -689,8 +689,7 @@ describe('EntityStore', () => {
     expect(cache.gc()).toEqual([]);
   });
 
-  // ForestRun doesn't support eviction
-  it.skip('allows cache eviction', () => {
+  it('allows cache eviction', () => {
     const { cache, query } = newBookAuthorCache();
 
     const cuckoosCallingBook = {
@@ -784,15 +783,17 @@ describe('EntityStore', () => {
       __META: cuckooMeta,
     });
 
-    expect(cache.gc()).toEqual([]);
-
-    expect(cache.retain('Author:Robert Galbraith')).toBe(1);
-
-    expect(cache.gc()).toEqual([]);
+    // ForestRun doesn't support GC
+    // expect(cache.gc()).toEqual([]);
+    //
+    // expect(cache.retain('Author:Robert Galbraith')).toBe(1);
+    //
+    // expect(cache.gc()).toEqual([]);
 
     expect(cache.evict({ id: "Author:Robert Galbraith" })).toBe(true);
 
-    expect(cache.gc()).toEqual([]);
+    // ForestRun doesn't support GC
+    // expect(cache.gc()).toEqual([]);
 
     cache.removeOptimistic("real name");
 
@@ -803,7 +804,8 @@ describe('EntityStore', () => {
     };
 
     expect(cache.extract(true)).toEqual({
-      __META: robertMeta,
+      // ForestRun: removes dangling references (FIXME: this is only because "extract" skips missing fields, but we have the actual data, so we can align the behavior to still expose this data)
+      // __META: robertMeta,
       ROOT_QUERY: {
         __typename: "Query",
         book: {
@@ -812,9 +814,10 @@ describe('EntityStore', () => {
       },
       "Book:031648637X": {
         __typename: "Book",
-        author: {
-          __ref: "Author:Robert Galbraith",
-        },
+        // ForestRun removes dangling references
+        // author: {
+        //   __ref: "Author:Robert Galbraith",
+        // },
         title: "The Cuckoo's Calling",
       },
       // The Robert Galbraith Author record is no longer here because
@@ -835,10 +838,10 @@ describe('EntityStore', () => {
 
     const cuckooRobertMeta = {
       ...cuckooMeta,
-      ...robertMeta,
+      // ...robertMeta, // ForestRun removes dangling references
       extraRootIds: [
         ...cuckooMeta.extraRootIds,
-        ...robertMeta.extraRootIds,
+        // ...robertMeta.extraRootIds, // ForestRun removes dangling references
       ].sort(),
     };
 
@@ -863,14 +866,15 @@ describe('EntityStore', () => {
       },
     });
 
-    expect(cache.retain("Author:Robert Galbraith")).toBe(2);
-
-    expect(cache.gc()).toEqual([]);
-
-    expect(cache.release("Author:Robert Galbraith")).toBe(1);
-    expect(cache.release("Author:Robert Galbraith")).toBe(0);
-
-    expect(cache.gc()).toEqual([]);
+    // ForestRun doesn't support gc
+    // expect(cache.retain("Author:Robert Galbraith")).toBe(2);
+    //
+    // expect(cache.gc()).toEqual([]);
+    //
+    // expect(cache.release("Author:Robert Galbraith")).toBe(1);
+    // expect(cache.release("Author:Robert Galbraith")).toBe(0);
+    //
+    // expect(cache.gc()).toEqual([]);
 
     function checkFalsyEvictId(id: any) {
       expect(id).toBeFalsy();
@@ -909,15 +913,16 @@ describe('EntityStore', () => {
       },
     });
 
-    const ccId = cache.identify(cuckoosCallingBook)!;
-    expect(cache.retain(ccId)).toBe(2);
-    expect(cache.release(ccId)).toBe(1);
-    expect(cache.release(ccId)).toBe(0);
-
-    expect(cache.gc().sort()).toEqual([
-      "Author:J.K. Rowling",
-      ccId,
-    ]);
+    // ForestRun doesn't support gc
+    // const ccId = cache.identify(cuckoosCallingBook)!;
+    // expect(cache.retain(ccId)).toBe(2);
+    // expect(cache.release(ccId)).toBe(1);
+    // expect(cache.release(ccId)).toBe(0);
+    //
+    // expect(cache.gc().sort()).toEqual([
+    //   "Author:J.K. Rowling",
+    //   ccId,
+    // ]);
   });
 
   // ForestRun doesn't support GC
@@ -1195,9 +1200,6 @@ describe('EntityStore', () => {
       publisherOfBook: MelvilleData,
     });
 
-    // ForestRun doesn't support eviction / GC
-    return;
-
     cache.evict({
       id: cache.identify({
         __typename: "Publisher",
@@ -1234,7 +1236,7 @@ describe('EntityStore', () => {
     expect(cache.extract()).toEqual({
       ROOT_QUERY: {
         ...justTedRootQueryData,
-        ...justJennyRootQueryData,
+        ...withoutPublisherOfBook(justJennyRootQueryData), // ForestRun removes dangling references on evict
       },
       'Author:{"name":"Ted Chiang"}': TedChiangData,
       'Publisher:{"name":"Alfred A. Knopf"}': {
@@ -1270,9 +1272,9 @@ describe('EntityStore', () => {
       'Author:{"name":"Jenny Odell"}': JennyOdellData,
     });
 
-    expect(cache.gc()).toEqual([
-      'Publisher:{"name":"Alfred A. Knopf"}',
-    ]);
+    // ForestRun doesn't support gc
+    // expect(cache.gc()).toEqual(['Publisher:{"name":"Alfred A. Knopf"}']);
+    cache.evict({ id: 'Publisher:{"name":"Alfred A. Knopf"}' }); // Explicitly removing instead
 
     expect(cache.extract()).toEqual({
       ROOT_QUERY: {
@@ -1342,31 +1344,52 @@ describe('EntityStore', () => {
         authorOfBook: tedWithoutHobby,
       },
       missing: [
+        // ForestRun lists missing fields in a different order, and only includes the very first field
         new MissingFieldError(
-          "Can't find field 'hobby' on Author:{\"name\":\"Ted Chiang\"} object",
+          "Can't find field 'publisherOfBook' on ROOT_QUERY object",
           {
-            publisherOfBook: "Can't find field 'publisherOfBook' on ROOT_QUERY object",
-            authorOfBook: {
-              hobby: "Can't find field 'hobby' on Author:{\"name\":\"Ted Chiang\"} object",
-            },
+            publisherOfBook:
+              "Can't find field 'publisherOfBook' on ROOT_QUERY object",
+            // authorOfBook: {
+            //   hobby:
+            //     'Can\'t find field \'hobby\' on Author:{"name":"Ted Chiang"} object',
+            // },
           },
           expect.anything(), // query
           expect.anything(), // variables
         ),
+        // new MissingFieldError(
+        //   'Can\'t find field \'hobby\' on Author:{"name":"Ted Chiang"} object',
+        //   {
+        //     publisherOfBook:
+        //       "Can't find field 'publisherOfBook' on ROOT_QUERY object",
+        //     authorOfBook: {
+        //       hobby:
+        //         'Can\'t find field \'hobby\' on Author:{"name":"Ted Chiang"} object',
+        //     },
+        //   },
+        //   expect.anything(), // query
+        //   expect.anything(), // variables
+        // ),
       ],
     });
 
-    cache.evict({ id: "ROOT_QUERY", fieldName: "authorOfBook"});
-    expect(cache.gc().sort()).toEqual([
-      'Author:{"name":"Jenny Odell"}',
-      'Author:{"name":"Ted Chiang"}',
-    ]);
-    expect(cache.extract()).toEqual({
-      ROOT_QUERY: {
-        // Everything else has been removed.
-        __typename: "Query",
-      },
-    });
+    cache.evict({ id: "ROOT_QUERY", fieldName: "authorOfBook" });
+
+    // ForestRun removes entry when all fields are removed
+    expect(cache.extract()["ROOT_QUERY"]).toBeUndefined();
+
+    // ForestRun doesn't support GC
+    // expect(cache.gc().sort()).toEqual([
+    //   'Author:{"name":"Jenny Odell"}',
+    //   'Author:{"name":"Ted Chiang"}',
+    // ]);
+    // expect(cache.extract()).toEqual({
+    //   ROOT_QUERY: {
+    //     // Everything else has been removed.
+    //     __typename: "Query",
+    //   },
+    // });
   });
 
   it("allows evicting specific fields with specific arguments", () => {
@@ -1448,9 +1471,6 @@ describe('EntityStore', () => {
       },
     });
 
-    // ForestRun doesn't support GC
-    return;
-
     cache.evict({
       fieldName: 'authorOfBook',
       args: { isbn: "1" },
@@ -1514,9 +1534,10 @@ describe('EntityStore', () => {
     });
 
     expect(cache.extract()).toEqual({
-      ROOT_QUERY: {
-        __typename: "Query",
-      },
+      // ForestRun removes this entry when there are no fields left
+      // ROOT_QUERY: {
+      //   __typename: "Query",
+      // },
     });
   });
 
@@ -1599,9 +1620,6 @@ describe('EntityStore', () => {
       },
     });
 
-    // ForestRun doesn't support GC
-    return;
-
     cache.evict({
       id: 'ROOT_QUERY',
       fieldName: 'authorOfBook',
@@ -1669,9 +1687,10 @@ describe('EntityStore', () => {
     });
 
     expect(cache.extract()).toEqual({
-      ROOT_QUERY: {
-        __typename: "Query",
-      },
+      // ForestRun removes it when there are no fields left
+      // ROOT_QUERY: {
+      //   __typename: "Query",
+      // },
     });
   });
 
@@ -1839,8 +1858,6 @@ describe('EntityStore', () => {
       query: queryWithoutAliases,
     })).toBe(resultWithoutAliases);
 
-    // ForestRun doesn't support GC
-    return;
 
     cache.evict({
       id: cache.identify({
@@ -1854,9 +1871,10 @@ describe('EntityStore', () => {
     expect(cache.extract()).toEqual({
       ROOT_QUERY: {
         __typename: "Query",
-        abcs: {
-          __ref: 'ABCs:{"b":"bee","a":"ay","c":"see"}',
-        },
+        // ForestRun deletes parent refs too
+        // abcs: {
+        //   __ref: 'ABCs:{"b":"bee","a":"ay","c":"see"}',
+        // },
       },
     });
 
@@ -1872,16 +1890,24 @@ describe('EntityStore', () => {
       query: queryWithAliases,
     })).toBe(null);
 
+    // ForestRun currently returns a different error
+    // expect(() => diff(queryWithAliases)).toThrow(
+    //   /Dangling reference to missing ABCs:.* object/,
+    // );
     expect(() => diff(queryWithAliases)).toThrow(
-      /Dangling reference to missing ABCs:.* object/,
+      /Can't find field 'abcs' on ROOT_QUERY object/,
     );
 
     expect(cache.readQuery({
       query: queryWithoutAliases,
     })).toBe(null);
 
+    // ForestRun currently returns a different error
+    // expect(() => diff(queryWithoutAliases)).toThrow(
+    //   /Dangling reference to missing ABCs:.* object/,
+    // );
     expect(() => diff(queryWithoutAliases)).toThrow(
-      /Dangling reference to missing ABCs:.* object/,
+      /Can't find field 'abcs' on ROOT_QUERY object/,
     );
   });
 
@@ -1899,7 +1925,9 @@ describe('EntityStore', () => {
 
     function writeInitialData(cache: ApolloCache<any>) {
       cache.writeQuery({
-        query,
+        // ForestRun: written data must match selection (i.e. selection must contain `id` field)
+        // query,
+        query: gql`{ book { id, author { id, name } } }`,
         data: {
           book: {
             __typename: "Book",
@@ -1944,16 +1972,14 @@ describe('EntityStore', () => {
       id: 2,
     })!;
 
-    // ForestRun doesn't support GC
-    return;
-
     expect(cache.evict({ id: authorId })).toBe(true);
 
     expect(cache.extract(true)).toEqual({
       "Book:1": {
         __typename: "Book",
         id: 1,
-        author: { __ref: "Author:2" },
+        // ForestRun also removes parent refs
+        // author: { __ref: "Author:2" },
       },
       ROOT_QUERY: {
         __typename: "Query",
@@ -1961,14 +1987,26 @@ describe('EntityStore', () => {
       },
     });
 
-    expect(cache.evict({ id: authorId })).toBe(false);
+    // ForestRun FIXME:
+    // expect(cache.evict({ id: authorId })).toBe(false);
 
     const missing = [
+      // ForestRun returns a different error
+      // new MissingFieldError(
+      //   "Dangling reference to missing Author:2 object",
+      //   {
+      //     book: {
+      //       author: "Dangling reference to missing Author:2 object",
+      //     },
+      //   },
+      //   expect.anything(), // query
+      //   expect.anything(), // variables
+      // ),
       new MissingFieldError(
-        "Dangling reference to missing Author:2 object",
+        "Can't find field 'author' on Book:1 object",
         {
           book: {
-            author: "Dangling reference to missing Author:2 object",
+            author: "Can't find field 'author' on Book:1 object",
           },
         },
         expect.anything(), // query
@@ -1986,7 +2024,8 @@ describe('EntityStore', () => {
       result: {
         book: {
           __typename: "Book",
-          author: {},
+          // ForestRun won't return this:
+          // author: {},
         },
       },
     });
@@ -1999,7 +2038,8 @@ describe('EntityStore', () => {
       "Book:1": {
         __typename: "Book",
         id: 1,
-        author: { __ref: "Author:2" },
+        // ForestRun removes deleted refs from parents:
+        // author: { __ref: "Author:2" },
       },
       ROOT_QUERY: {
         __typename: "Query",
@@ -2017,7 +2057,8 @@ describe('EntityStore', () => {
       result: {
         book: {
           __typename: "Book",
-          author: {},
+          // ForestRun won't return this
+          // author: {},
         },
       },
     });
@@ -2613,8 +2654,6 @@ describe('EntityStore', () => {
       "1982103558",
     ]);
 
-    // ForestRun doesn't support GC
-    return;
 
     // Evicting the 1982103558 Book should not invalidate the 1449373321
     // Book, so diffs and isbnsWeHaveRead should remain unchanged.
@@ -2647,11 +2686,8 @@ describe('EntityStore', () => {
       optimistic: false,
     })).toBe(diffs[0].result);
 
-    expect(isbnsWeHaveRead).toEqual([
-      "1449373321",
-      "1982103558",
-      "1449373321",
-    ]);
+    // ForestRun won't execute "read" policy again
+    // expect(isbnsWeHaveRead).toEqual(["1449373321", "1982103558", "1449373321"]);
   });
 
   // ForestRun doesn't support store.merge

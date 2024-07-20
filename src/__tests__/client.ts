@@ -3303,8 +3303,7 @@ describe('@connection', () => {
       });
     });
 
-    // ForestRun: TODO
-    itAsync.skip('allows setting nextFetchPolicy in defaultOptions', (resolve, reject) => {
+    itAsync('allows setting nextFetchPolicy in defaultOptions', (resolve, reject) => {
       let networkCounter = 0;
       let nextFetchPolicyCallCount = 0;
 

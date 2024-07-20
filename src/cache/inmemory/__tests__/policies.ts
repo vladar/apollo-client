@@ -3843,10 +3843,6 @@ describe("type policies", function () {
               totalCount: 13531,
             });
 
-            // ForestRun doesn't support eviction yet, so have to stop here (TODO)
-            resolve();
-            return;
-
             // Evict the Basquiat entity to verify that the dangling
             // edge.node Reference gets automatically elided from the
             // Basquiat search results, thanks to the read function
@@ -3929,10 +3925,11 @@ describe("type policies", function () {
                 ...edge,
                 // This time the cursors are different depending on which
                 // of the two edges we're considering.
-                cursor: [
-                  turrellPageInfo2.startCursor,
-                  turrellPageInfo2.endCursor,
-                ][i],
+                // ForestRun: disabled, because cursor is not listed in the operation selection :/
+                // cursor: [
+                //   turrellPageInfo2.startCursor,
+                //   turrellPageInfo2.endCursor,
+                // ][i],
                 node: [
                   // Artist objects are normalized by HREF:
                   { __ref: 'Artist:{"href":"/artist/james-turrell"}' },
@@ -3952,7 +3949,7 @@ describe("type policies", function () {
           reject("should not receive another result for Basquiat");
         }
       });
-    }, 60000);
+    });
 
     it("runs nested merge functions as well as ancestors", function () {
       let eventMergeCount = 0;

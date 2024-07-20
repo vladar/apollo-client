@@ -531,8 +531,7 @@ describe('Writing cache data from resolvers', () => {
       });
   });
 
-  // ForestRun doesn't support cache.modify
-  it.skip('should let you write to the cache with a mutation using an ID', () => {
+  it('should let you write to the cache with a mutation using an ID', () => {
     const query = gql`
       {
         obj @client {
