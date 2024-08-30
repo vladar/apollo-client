@@ -1178,12 +1178,7 @@ describe('mutation results', () => {
         mutation,
       }),
     ]).then(results => {
-      // ForestRun doesn't wipe out mutations yet
-      expect(client.cache.extract()).toMatchObject({
-        ROOT_MUTATION: {
-          __typename: "Mutation",
-        },
-      });
+      expect(client.cache.extract()).toMatchObject({});
       expect(results).toEqual([
         { data: { result: "hello" }},
         { data: { result: "world" }},
@@ -1256,12 +1251,7 @@ describe('mutation results', () => {
         variables: { c: 3 },
       }),
     ]).then(results => {
-      // ForestRun doesn't wipe out mutations yet
-      expect(client.cache.extract()).toMatchObject({
-        ROOT_MUTATION: {
-          __typename: "Mutation",
-        },
-      });
+      expect(client.cache.extract()).toMatchObject({});
       expect(results).toEqual([
         { data: { result: 'hello' }},
         { data: { result: 'world' }},
@@ -1334,12 +1324,7 @@ describe('mutation results', () => {
         variables: { a: null, b: null, c: null },
       }),
     ]).then(results => {
-      // ForestRun doesn't wipe out mutations yet
-      expect(client.cache.extract()).toMatchObject({
-        ROOT_MUTATION: {
-          __typename: "Mutation",
-        },
-      });
+      expect(client.cache.extract()).toMatchObject({});
       expect(results).toEqual([
         { data: { result: 'hello' }},
         { data: { result: 'world' }},

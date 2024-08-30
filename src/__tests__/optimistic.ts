@@ -2081,7 +2081,6 @@ describe('optimistic mutation results', () => {
 
         // Only the final update function ever touched non-optimistic
         // cache data.
-        // ForestRun does not wipe Mutation results (yet)
         expect(cache.extract(false)).toMatchObject({
           ROOT_QUERY: {
             __typename: "Query",
@@ -2089,14 +2088,10 @@ describe('optimistic mutation results', () => {
               mutationItem,
             ],
           },
-          ROOT_MUTATION: {
-            __typename: "Mutation",
-          },
         });
 
         // Now that the mutation is finished, reading optimistically from
         // the cache should return the manually added items again.
-        // ForestRun doesn't wipe out mutation results yet
         expect(cache.extract(true)).toMatchObject({
           ROOT_QUERY: {
             __typename: "Query",
@@ -2124,25 +2119,18 @@ describe('optimistic mutation results', () => {
               manualItem2,
             ],
           },
-          ROOT_MUTATION: {
-            __typename: "Mutation",
-          },
         });
 
         cache.removeOptimistic("manual");
 
         // After removing the manual optimistic layer, only the
         // non-optimistic data remains.
-        // ForestRun doesn't wipe out mutation results (yet)
         expect(cache.extract(true)).toMatchObject({
           ROOT_QUERY: {
             __typename: "Query",
             items: [
               mutationItem,
             ],
-          },
-          ROOT_MUTATION: {
-            __typename: "Mutation",
           },
         });
 
