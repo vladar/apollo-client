@@ -122,7 +122,7 @@ describe('optimistic cache layers', () => {
       });
 
       resultCatch22 = readOptimistic(proxy);
-      expect(resultCatch22).toEqual({
+      expect(resultCatch22).toMatchObject({ // ForestRun: written data has more fields
         book: {
           __typename: 'Book',
           title: 'Catch-22',
@@ -421,7 +421,8 @@ describe('optimistic cache layers', () => {
       },
     });
 
-    expect(readWithAuthors()).toBe(resultWithBuzz);
+    // ForestRun: changed from toBe to toEqual. The cost of preserving referential integrity in this case is huge
+    expect(readWithAuthors()).toEqual(resultWithBuzz);
 
     function readSpinelessFragment() {
       return cache.readFragment<{ author: any }>(
@@ -437,11 +438,11 @@ describe('optimistic cache layers', () => {
     cache.removeOptimistic('buzz book');
     const spinelessAfterRemovingBuzz = readSpinelessFragment();
     expect(spinelessBeforeRemovingBuzz).toEqual(spinelessAfterRemovingBuzz);
-    expect(spinelessBeforeRemovingBuzz).toBe(spinelessAfterRemovingBuzz);
+    // expect(spinelessBeforeRemovingBuzz).toBe(spinelessAfterRemovingBuzz); // ForestRun
 
     const resultAfterRemovingBuzzLayer = readWithAuthors();
     expect(resultAfterRemovingBuzzLayer).toEqual(resultWithBuzz);
-    expect(resultAfterRemovingBuzzLayer).toBe(resultWithBuzz);
+    // expect(resultAfterRemovingBuzzLayer).toBe(resultWithBuzz); // ForestRun
     resultWithTwoAuthors.books.forEach((book, i) => {
       expect(book).toEqual(resultAfterRemovingBuzzLayer.books[i]);
       expect(book).toBe(resultAfterRemovingBuzzLayer.books[i]);

@@ -3683,7 +3683,7 @@ describe("type policies", function () {
           });
 
         } else if (count === 2) {
-          expect(result).toEqual({
+          expect(result).toMatchObject({ // ForestRun: policies mutate original data and ForestRun preserves it
             loading: false,
             networkStatus: NetworkStatus.ready,
             data: {
@@ -3713,7 +3713,7 @@ describe("type policies", function () {
         } else if (count === 3) {
           expect(result.data.search.edges.length).toBe(5);
 
-          expect(result).toEqual({
+          expect(result).toMatchObject({ // ForestRun: policies mutate original data and ForestRun preserves it
             loading: false,
             networkStatus: NetworkStatus.ready,
             data: {
@@ -3741,7 +3741,7 @@ describe("type policies", function () {
           });
 
         } else if (count === 4) {
-          expect(result).toEqual({
+          expect(result).toMatchObject({ // ForestRun: policies mutate original data and ForestRun preserves it
             loading: false,
             networkStatus: NetworkStatus.ready,
             data: {
@@ -3763,7 +3763,7 @@ describe("type policies", function () {
             },
           });
 
-          expect(result.data.search.edges).toEqual([
+          expect(result.data.search.edges).toMatchObject([ // ForestRun: policies mutate original data and ForestRun preserves it
             ...firstEdges,
             ...secondEdges,
           ]);
@@ -3777,7 +3777,7 @@ describe("type policies", function () {
         } else if (count === 5) {
           expect(result.data.search.edges.length).toBe(7);
 
-          expect(result).toEqual({
+          expect(result).toMatchObject({ // ForestRun: policies mutate original data and ForestRun preserves it
             loading: false,
             networkStatus: NetworkStatus.ready,
             data: {
@@ -3874,7 +3874,7 @@ describe("type policies", function () {
             },
           });
 
-          expect(result).toEqual({
+          expect(result).toMatchObject({ // ForestRun: policies mutate original data and ForestRun preserves it
             loading: false,
             networkStatus: NetworkStatus.ready,
             data: {
@@ -5079,6 +5079,7 @@ describe("type policies", function () {
     expect(cache.readQuery({ query })).toEqual({
       currentlyReading: [{
         __typename: "Book",
+        isbn: "0525558616", // FOREST RUN keeps originally written data untouched
         title: "Human Compatible: Artificial Intelligence and the Problem of Control",
         authors: [{
           __typename: "Author",
@@ -5086,6 +5087,7 @@ describe("type policies", function () {
         }],
       }, {
         __typename: "Book",
+        isbn: "1541698967", // FOREST RUN keeps originally written data untouched
         title: "The Book of Why: The New Science of Cause and Effect",
         authors: [{
           __typename: "Author",
@@ -5404,7 +5406,9 @@ describe("type policies", function () {
 
     const thirdFirstBookResult = readFirstBookResult();
     expect(thirdFirstBookResult).toEqual(secondFirstBookResult);
-    expect(thirdFirstBookResult).toBe(secondFirstBookResult);
+    // ForestRun: this cost of making this happen is huge in terms of perf and memory
+    //   (we basically need another copy of the result that has separate lifecycle, i.e. must be diffed / updated in addition to the main operation)
+    // expect(thirdFirstBookResult).toBe(secondFirstBookResult);
   });
 
   // ForestRun doesn't support this (yet?)

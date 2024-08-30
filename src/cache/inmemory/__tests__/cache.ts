@@ -747,7 +747,7 @@ describe('Cache', () => {
           { id, fragment },
           true, // optimistic
         ),
-      ).toEqual({
+      ).toMatchObject({ // ForestRun: write has more data than selection and ForestRun preserves original objects
         __typename: "Person",
         firstName: "Hugh",
         lastName: "Willson",
@@ -768,7 +768,7 @@ describe('Cache', () => {
           { id, fragment },
           false, // not optimistic
         ),
-      ).toEqual({
+      ).toMatchObject({ // ForestRun will expose written data
         __typename: "Person",
         firstName: "HUGH",
         lastName: "WILLSON",
@@ -779,7 +779,7 @@ describe('Cache', () => {
           { id, fragment },
           true, // optimistic
         ),
-      ).toEqual({
+      ).toMatchObject({ // ForestRun: will return the exact data from the previous write
         __typename: "Person",
         firstName: "Hugh",
         lastName: "Willson",
@@ -792,7 +792,7 @@ describe('Cache', () => {
           { id, fragment },
           true, // optimistic
         ),
-      ).toEqual({
+      ).toMatchObject({ // ForestRun will return originally written data, which includes `id` field
         __typename: "Person",
         firstName: "HUGH",
         lastName: "WILLSON",

@@ -1978,7 +1978,7 @@ describe('ObservableQuery', () => {
         subscribeAndCount(reject, observable, (handleCount, subResult) => {
           const { data, loading, networkStatus } = observable.getCurrentResult();
 
-          expect(subResult.data).toEqual(data);
+          expect(subResult.data).toMatchObject(data); // ForestRun returns data as it was written
           expect(subResult.loading).toEqual(loading);
           expect(subResult.networkStatus).toEqual(networkStatus);
 
